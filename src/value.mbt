@@ -59,7 +59,7 @@ pub fn bson_array() -> BsonValue {
 //
 
 ///|
-pub fn is_string(self : BsonValue) -> Bool {
+pub fn BsonValue::is_string(self : BsonValue) -> Bool {
   match self {
     String(_) => true
     _ => false
@@ -67,7 +67,7 @@ pub fn is_string(self : BsonValue) -> Bool {
 }
 
 ///|
-pub fn is_int(self : BsonValue) -> Bool {
+pub fn BsonValue::is_int(self : BsonValue) -> Bool {
   match self {
     Int32(_) | Int64(_) => true
     _ => false
@@ -75,7 +75,7 @@ pub fn is_int(self : BsonValue) -> Bool {
 }
 
 ///|
-pub fn is_document(self : BsonValue) -> Bool {
+pub fn BsonValue::is_document(self : BsonValue) -> Bool {
   match self {
     Document(_) => true
     _ => false
@@ -83,7 +83,7 @@ pub fn is_document(self : BsonValue) -> Bool {
 }
 
 ///|
-pub fn is_array(self : BsonValue) -> Bool {
+pub fn BsonValue::is_array(self : BsonValue) -> Bool {
   match self {
     Array(_) => true
     _ => false
@@ -95,7 +95,7 @@ pub fn is_array(self : BsonValue) -> Bool {
 //
 
 ///|
-pub fn as_string(self : BsonValue) -> String? {
+pub fn BsonValue::as_string(self : BsonValue) -> String? {
   match self {
     String(s) => Some(s)
     _ => None
@@ -103,7 +103,7 @@ pub fn as_string(self : BsonValue) -> String? {
 }
 
 ///|
-pub fn as_int32(self : BsonValue) -> Int? {
+pub fn BsonValue::as_int32(self : BsonValue) -> Int? {
   match self {
     Int32(i) => Some(i)
     _ => None
@@ -111,7 +111,7 @@ pub fn as_int32(self : BsonValue) -> Int? {
 }
 
 ///|
-pub fn as_int64(self : BsonValue) -> Int? {
+pub fn BsonValue::as_int64(self : BsonValue) -> Int? {
   match self {
     Int64(i) => Some(i)
     _ => None
@@ -119,7 +119,7 @@ pub fn as_int64(self : BsonValue) -> Int? {
 }
 
 ///|
-pub fn as_document(self : BsonValue) -> Map[String, BsonValue]? {
+pub fn BsonValue::as_document(self : BsonValue) -> Map[String, BsonValue]? {
   match self {
     Document(m) => Some(m)
     _ => None
@@ -127,7 +127,7 @@ pub fn as_document(self : BsonValue) -> Map[String, BsonValue]? {
 }
 
 ///|
-pub fn as_array(self : BsonValue) -> Array[BsonValue]? {
+pub fn BsonValue::as_array(self : BsonValue) -> Array[BsonValue]? {
   match self {
     Array(arr) => Some(arr)
     _ => None
@@ -139,7 +139,7 @@ pub fn as_array(self : BsonValue) -> Array[BsonValue]? {
 //
 
 ///| If it is a Document, set the field value (chain writing)
-pub fn set(self : BsonValue, key : String, val : BsonValue) -> BsonValue {
+pub fn BsonValue::set(self : BsonValue, key : String, val : BsonValue) -> BsonValue {
   match self {
     Document(m) => {
       m.set(key, val)
@@ -150,7 +150,7 @@ pub fn set(self : BsonValue, key : String, val : BsonValue) -> BsonValue {
 }
 
 ///| If it is Array, add elements (chain writing)
-pub fn push(self : BsonValue, val : BsonValue) -> BsonValue {
+pub fn BsonValue::push(self : BsonValue, val : BsonValue) -> BsonValue {
   match self {
     Array(arr) => {
       arr.push(val)
@@ -179,7 +179,7 @@ impl Show for BsonValue with to_string(self : BsonValue) -> String {
 }
 
 ///|
-impl Eq for BsonValue with op_equal(self, other) {
+impl Eq for BsonValue with equal(self, other) {
   match (self, other) {
     (Double(f1), Double(f2)) => f1 == f2
     (String(s1), String(s2)) => s1 == s2
