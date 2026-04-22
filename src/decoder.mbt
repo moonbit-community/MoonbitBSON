@@ -16,7 +16,8 @@ fn slice_array(arr : Array[Byte], from : Int, to : Int) -> Array[Byte] {
 
 // Entry point: decode BSON from Bytes
 
-///| This function is commented out because decode_document requires trait BufReadable 
+///|
+/// This function is commented out because decode_document requires trait BufReadable 
 pub fn decode_bson(data : Bytes) -> BsonValue raise Error {
   let reader = @buffer.new_reader(data)
   decode_document(reader)

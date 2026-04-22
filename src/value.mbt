@@ -1,4 +1,5 @@
-///| BSON Type enumeration
+///|
+/// BSON Type enumeration
 pub enum BsonValue {
   Double(Float) // 0x01
   String(String) // 0x02
@@ -138,8 +139,13 @@ pub fn BsonValue::as_array(self : BsonValue) -> Array[BsonValue]? {
 // ==== Chain construction ====
 //
 
-///| If it is a Document, set the field value (chain writing)
-pub fn BsonValue::set(self : BsonValue, key : String, val : BsonValue) -> BsonValue {
+///|
+/// If it is a Document, set the field value (chain writing)
+pub fn BsonValue::set(
+  self : BsonValue,
+  key : String,
+  val : BsonValue,
+) -> BsonValue {
   match self {
     Document(m) => {
       m.set(key, val)
@@ -149,7 +155,8 @@ pub fn BsonValue::set(self : BsonValue, key : String, val : BsonValue) -> BsonVa
   }
 }
 
-///| If it is Array, add elements (chain writing)
+///|
+/// If it is Array, add elements (chain writing)
 pub fn BsonValue::push(self : BsonValue, val : BsonValue) -> BsonValue {
   match self {
     Array(arr) => {
@@ -264,6 +271,7 @@ test "check decode_cstring result" {
   assert_eq(result, "name")
 }
 
+///|
 test "Basic Types Roundtrip" {
   let doc = bson_document()
     .set("str", bson_string("hello"))
@@ -277,6 +285,7 @@ test "Basic Types Roundtrip" {
   assert_eq(result, doc)
 }
 
+///|
 test "Deeply Nested Document" {
   let inner = bson_document().set("level3", bson_string("deep"))
   let mid = bson_document().set("level2", inner)
@@ -287,6 +296,7 @@ test "Deeply Nested Document" {
   assert_eq(result, outer)
 }
 
+///|
 test "Empty Array Encode/Decode" {
   let arr = bson_array() // 空数组
   let doc = bson_document().set("emptyList", arr)
@@ -296,6 +306,7 @@ test "Empty Array Encode/Decode" {
   assert_eq(result, doc)
 }
 
+///|
 test "Array of Mixed Types" {
   let inner = bson_document().set("id", bson_int32(1))
   let arr = bson_array()
@@ -310,6 +321,7 @@ test "Array of Mixed Types" {
   assert_eq(result, doc)
 }
 
+///|
 test "BufferWriter Overflow" {
   let writer = @buffer.new_writer(4)
   let result = try? writer.write_all([0x01, 0x02, 0x03, 0x04, 0x05]) // 长度 5 > 容量 4

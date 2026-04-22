@@ -1,0 +1,7 @@
+import {
+  "ZSeanYves/bufferutils" @buffer,
+}
+
+options(
+  "is-main": false,
+)
