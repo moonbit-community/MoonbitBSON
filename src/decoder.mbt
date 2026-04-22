@@ -142,7 +142,7 @@ fn decode_string(reader : @buffer.BufferReader) -> String raise Error {
 ///|
 fn read_n(reader : @buffer.BufferReader, n : Int) -> Array[Byte] raise Error {
   let buf : Array[Byte] = []
-  for i in 0..<n {
+  for _ in 0..<n {
     let b = reader.read_byte()
     buf.push(b)
   }
