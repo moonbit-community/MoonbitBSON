@@ -313,5 +313,5 @@ test "Array of Mixed Types" {
 test "BufferWriter Overflow" {
   let writer = @buffer.new_writer(4)
   let result = try? writer.write_all([0x01, 0x02, 0x03, 0x04, 0x05]) // 长度 5 > 容量 4
-  assert_eq(result.is_err(), true)
+  assert_true(result is Err(_))
 }
