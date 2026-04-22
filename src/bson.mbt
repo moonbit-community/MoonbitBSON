@@ -13,17 +13,19 @@ pub fn from_bson(bytes : Bytes) -> BsonValue raise Error {
 ///| Safe wrapper: encode to Bytes
 /// Returns empty Bytes on failure
 pub fn to_bson_safe(value : BsonValue) -> Bytes {
-  match (try? encode_bson(value)) {
-    Ok(b) => b
-    Err(_) => Bytes::from_array([])
+  try encode_bson(value) catch {
+    _ => Bytes::from_array([])
+  } noraise {
+    b => b
   }
 }
 
 ///| Safe wrapper: decode from Bytes
 /// Returns Null on failure
 pub fn from_bson_safe(bytes : Bytes) -> BsonValue {
-  match (try? decode_bson(bytes)) {
-    Ok(v) => v
-    Err(_) => BsonValue::Null
+  try decode_bson(bytes) catch {
+    _ => BsonValue::Null
+  } noraise {
+    v => v
   }
 }
