@@ -31,7 +31,7 @@ fn decode_document(reader : @buffer.BufferReader) -> BsonValue raise Error {
   if total_len < 5 {
     raise InvalidDocumentLength("BSON document too short")
   }
-  let map = Map::new(capacity=8)
+  let map = Map([], capacity=8)
   while true {
     let type_code = reader.read_byte() // use trait method
     if type_code == 0x00 {

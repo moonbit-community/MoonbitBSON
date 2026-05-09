@@ -78,7 +78,7 @@ fn write_array(
   writer : @buffer.BufferWriter,
   arr : Array[BsonValue],
 ) -> Unit raise Error {
-  let inner = Map::new(capacity=arr.length())
+  let inner = Map([], capacity=arr.length())
   for i in 0..<arr.length() {
     inner.set(i.to_string(), arr[i])
   }
