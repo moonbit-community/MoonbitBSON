@@ -47,7 +47,7 @@ pub fn bson_null() -> BsonValue {
 
 ///|
 pub fn bson_document() -> BsonValue {
-  Document(Map::new(capacity=8))
+  Document(Map([], capacity=8))
 }
 
 ///|
