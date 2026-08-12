@@ -9,7 +9,7 @@ pub enum BsonValue {
   Null // 0x0A
   Int32(Int) // 0x10
   Int64(Int) // 0x12
-}
+} derive(Debug)
 
 //
 // ==== Constructor functions ====
@@ -172,7 +172,7 @@ pub fn BsonValue::push(self : BsonValue, val : BsonValue) -> BsonValue {
 //
 
 ///|
-impl Show for BsonValue with to_string(self : BsonValue) -> String {
+impl Show for BsonValue with fn to_string(self : BsonValue) -> String {
   match self {
     Double(f) => "Double(" + f.to_string() + ")"
     String(s) => "String(" + s + ")"
@@ -186,7 +186,7 @@ impl Show for BsonValue with to_string(self : BsonValue) -> String {
 }
 
 ///|
-impl Eq for BsonValue with equal(self, other) {
+impl Eq for BsonValue with fn equal(self, other) {
   match (self, other) {
     (Double(f1), Double(f2)) => f1 == f2
     (String(s1), String(s2)) => s1 == s2
@@ -201,7 +201,7 @@ impl Eq for BsonValue with equal(self, other) {
 }
 
 ///|
-impl Show for BsonValue with output(self, logger) {
+impl Show for BsonValue with fn output(self, logger) {
   match self {
     Double(f) => logger.write_object("Double(" + f.to_string() + ")")
     String(s) => logger.write_object("String(" + s + ")")
@@ -267,7 +267,6 @@ test "check decode_cstring result" {
   let raw : Array[Byte] = [0x6E, 0x61, 0x6D, 0x65, 0x00] // "name"
   let reader = @buffer.new_reader(Bytes::from_array(raw))
   let result = decode_cstring(reader)
-  println(result)
   assert_eq(result, "name")
 }
 
@@ -324,6 +323,5 @@ test "Array of Mixed Types" {
 ///|
 test "BufferWriter Overflow" {
   let writer = @buffer.new_writer(4)
-  let result = try? writer.write_all([0x01, 0x02, 0x03, 0x04, 0x05]) // 长度 5 > 容量 4
-  assert_true(result is Err(_))
+  @test.assert_raise(() => writer.write_all([0x01, 0x02, 0x03, 0x04, 0x05])) // 长度 5 > 容量 4
 }

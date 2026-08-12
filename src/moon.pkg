@@ -1,7 +1,4 @@
 import {
   "ZSeanYves/bufferutils" @buffer,
+  "moonbitlang/core/test",
 }
-
-options(
-  "is-main": false,
-)
