@@ -1,14 +1,14 @@
 ///|
 /// Top-level convenience API: encode to Bytes
 /// Raises BsonError if encoding fails
-pub fn to_bson(value : BsonValue) -> Bytes raise Error {
+pub fn to_bson(value : BsonValue) -> Bytes raise BsonError {
   encode_bson(value)
 }
 
 ///|
 /// Top-level convenience API: decode from Bytes
 /// Raises BsonError if decoding fails
-pub fn from_bson(bytes : Bytes) -> BsonValue raise Error {
+pub fn from_bson(bytes : Bytes) -> BsonValue raise BsonError {
   decode_bson(bytes)
 }
 
@@ -28,7 +28,7 @@ pub fn to_bson_safe(value : BsonValue) -> Bytes {
 /// Returns Null on failure
 pub fn from_bson_safe(bytes : Bytes) -> BsonValue {
   try decode_bson(bytes) catch {
-    _ => BsonValue::Null
+    _ => Null
   } noraise {
     v => v
   }

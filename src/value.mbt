@@ -1,14 +1,14 @@
 ///|
 /// BSON Type enumeration
 pub enum BsonValue {
-  Double(Float) // 0x01
+  Double(Double) // 0x01
   String(String) // 0x02
   Document(Map[String, BsonValue]) // 0x03
   Array(Array[BsonValue]) // 0x04
   Boolean(Bool) // 0x08
   Null // 0x0A
   Int32(Int) // 0x10
-  Int64(Int) // 0x12
+  Int64(Int64) // 0x12
 } derive(Debug)
 
 //
@@ -16,7 +16,7 @@ pub enum BsonValue {
 //
 
 ///|
-pub fn bson_double(f : Float) -> BsonValue {
+pub fn bson_double(f : Double) -> BsonValue {
   Double(f)
 }
 
@@ -31,7 +31,7 @@ pub fn bson_int32(i : Int) -> BsonValue {
 }
 
 ///|
-pub fn bson_int64(i : Int) -> BsonValue {
+pub fn bson_int64(i : Int64) -> BsonValue {
   Int64(i)
 }
 
@@ -112,7 +112,7 @@ pub fn BsonValue::as_int32(self : BsonValue) -> Int? {
 }
 
 ///|
-pub fn BsonValue::as_int64(self : BsonValue) -> Int? {
+pub fn BsonValue::as_int64(self : BsonValue) -> Int64? {
   match self {
     Int64(i) => Some(i)
     _ => None
@@ -263,11 +263,9 @@ test "Empty Document Roundtrip" {
 }
 
 ///|
-test "check decode_cstring result" {
-  let raw : Array[Byte] = [0x6E, 0x61, 0x6D, 0x65, 0x00] // "name"
-  let reader = @buffer.new_reader(Bytes::from_array(raw))
-  let result = decode_cstring(reader)
-  assert_eq(result, "name")
+test "UTF-8 CString key roundtrip" {
+  let doc = bson_document().set("名称", bson_string("MoonBit"))
+  assert_eq(decode_bson(encode_bson(doc)), doc)
 }
 
 ///|
@@ -275,7 +273,7 @@ test "Basic Types Roundtrip" {
   let doc = bson_document()
     .set("str", bson_string("hello"))
     .set("i32", bson_int32(123))
-    .set("fake_i64", bson_string("9876543210123456789")) // Int64 as string
+    .set("i64", bson_int64(987654321012345678L))
     .set("bool", bson_bool(true))
     .set("null", bson_null())
 
@@ -321,7 +319,13 @@ test "Array of Mixed Types" {
 }
 
 ///|
-test "BufferWriter Overflow" {
-  let writer = @buffer.new_writer(4)
-  @test.assert_raise(() => writer.write_all([0x01, 0x02, 0x03, 0x04, 0x05])) // 长度 5 > 容量 4
+test "Document larger than initial buffer grows" {
+  let pieces : Array[String] = []
+  for _ in 0..<256 {
+    pieces.push("x")
+  }
+  let doc = bson_document().set("payload", bson_string(pieces.join("")))
+  let encoded = encode_bson(doc)
+  assert_true(encoded.length() > 128)
+  assert_eq(decode_bson(encoded), doc)
 }

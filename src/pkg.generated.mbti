@@ -12,25 +12,25 @@ pub fn bson_bool(Bool) -> BsonValue
 
 pub fn bson_document() -> BsonValue
 
-pub fn bson_double(Float) -> BsonValue
+pub fn bson_double(Double) -> BsonValue
 
 pub fn bson_int32(Int) -> BsonValue
 
-pub fn bson_int64(Int) -> BsonValue
+pub fn bson_int64(Int64) -> BsonValue
 
 pub fn bson_null() -> BsonValue
 
 pub fn bson_string(String) -> BsonValue
 
-pub fn decode_bson(Bytes) -> BsonValue raise
+pub fn decode_bson(Bytes) -> BsonValue raise BsonError
 
-pub fn encode_bson(BsonValue) -> Bytes raise
+pub fn encode_bson(BsonValue) -> Bytes raise BsonError
 
-pub fn from_bson(Bytes) -> BsonValue raise
+pub fn from_bson(Bytes) -> BsonValue raise BsonError
 
 pub fn from_bson_safe(Bytes) -> BsonValue
 
-pub fn to_bson(BsonValue) -> Bytes raise
+pub fn to_bson(BsonValue) -> Bytes raise BsonError
 
 pub fn to_bson_safe(BsonValue) -> Bytes
 
@@ -45,19 +45,19 @@ pub suberror BsonError {
 
 // Types and methods
 pub enum BsonValue {
-  Double(Float)
+  Double(Double)
   String(String)
   Document(Map[String, BsonValue])
   Array(Array[BsonValue])
   Boolean(Bool)
   Null
   Int32(Int)
-  Int64(Int)
+  Int64(Int64)
 } derive(@debug.Debug)
 pub fn BsonValue::as_array(Self) -> Array[Self]?
 pub fn BsonValue::as_document(Self) -> Map[String, Self]?
 pub fn BsonValue::as_int32(Self) -> Int?
-pub fn BsonValue::as_int64(Self) -> Int?
+pub fn BsonValue::as_int64(Self) -> Int64?
 pub fn BsonValue::as_string(Self) -> String?
 pub fn BsonValue::is_array(Self) -> Bool
 pub fn BsonValue::is_document(Self) -> Bool

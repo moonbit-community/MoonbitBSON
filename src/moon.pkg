@@ -1,4 +1,4 @@
 import {
-  "ZSeanYves/bufferutils" @buffer,
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/test",
 }
