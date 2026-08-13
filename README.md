@@ -1,11 +1,11 @@
-# 📦 BsonLite: A Lightweight BSON Encoder/Decoder for MoonBit
+# 📦 MoonBitBSON: A Lightweight BSON Encoder/Decoder for MoonBit
 
-[English](https://github.com/moonbit-community/BsonLite/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/BsonLite/blob/main/README_zh_CN.md)
+[English](https://github.com/moonbit-community/MoonBitBSON/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/MoonBitBSON/blob/main/README_zh_CN.md)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/BsonLite/bsonlite-ci.yml)](https://github.com/moonbit-community/BsonLite/actions)
-[![License](https://img.shields.io/github/license/moonbit-community/BsonLite)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/MoonBitBSON/bsonlite-ci.yml)](https://github.com/moonbit-community/MoonBitBSON/actions)
+[![License](https://img.shields.io/github/license/moonbit-community/MoonBitBSON)](LICENSE)
 
-**BsonLite** is a lightweight BSON utility library for **MoonBit**. It supports encoding and decoding the core BSON types (strings, integers, booleans, arrays, and documents). The API is small and easy to use, suitable for learning, experiments, and format conversion tasks.
+**MoonBitBSON** is a lightweight BSON utility library for **MoonBit**. It supports encoding and decoding the core BSON types (strings, integers, booleans, arrays, and documents). The API is small and easy to use, suitable for learning, experiments, and format conversion tasks.
 
 ---
 

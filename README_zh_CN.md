@@ -1,11 +1,11 @@
-# 📦 BsonLite: MoonBit 轻量级 BSON 编/解码库
+# 📦 MoonBitBSON: MoonBit 轻量级 BSON 编/解码库
 
-[English](https://github.com/moonbit-community/BsonLite/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/BsonLite/blob/main/README_zh_CN.md)
+[English](https://github.com/moonbit-community/MoonBitBSON/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/MoonBitBSON/blob/main/README_zh_CN.md)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/BsonLite/bsonlite-ci.yml)](https://github.com/moonbit-community/BsonLite/actions)
-[![License](https://img.shields.io/github/license/moonbit-community/BsonLite)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/MoonBitBSON/bsonlite-ci.yml)](https://github.com/moonbit-community/MoonBitBSON/actions)
+[![License](https://img.shields.io/github/license/moonbit-community/MoonBitBSON)](LICENSE)
 
-**BsonLite** 是一个基于 MoonBit 言语的轻量级 BSON 工具库，支持基础类型的 BSON 编码和解码，包括字符串、整数、布尔、数组、字典等。库设计简洁，调用简单，适合学习、工程实验和辅助转换等场景。
+**MoonBitBSON** 是一个基于 MoonBit 言语的轻量级 BSON 工具库，支持基础类型的 BSON 编码和解码，包括字符串、整数、布尔、数组、字典等。库设计简洁，调用简单，适合学习、工程实验和辅助转换等场景。
 
 ---
 
