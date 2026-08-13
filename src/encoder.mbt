@@ -1,45 +1,43 @@
 ///|
-/// Encode a complete BsonValue document
-pub fn encode_bson(doc : BsonValue) -> Bytes raise Error {
+/// Encode a complete BSON document.
+pub fn encode_bson(doc : BsonValue) -> Bytes raise BsonError {
   match doc {
     Document(map) => encode_document(map)
-    _ =>
-      raise BsonError::InvalidDocumentLength("Top-level value must be Document")
+    _ => raise InvalidDocumentLength("Top-level value must be a Document")
   }
 }
 
 ///|
-/// Encode a BSON document from Map
-fn encode_document(map : Map[String, BsonValue]) -> Bytes raise Error {
-  let writer = @buffer.new_writer(128)
-  writer.write_all([0, 0, 0, 0]) // placeholder for length
-  for k in map.keys() {
-    match map.get(k) {
-      Some(v) => {
-        let type_code = get_type_code(v)
-        writer.write_byte(type_code)
-        write_cstring(writer, k)
-        write_element(writer, v)
-      }
-      None =>
-        raise BsonError::InvalidDocumentLength("Missing value in document map")
-    }
-  }
-  writer.write_byte(0x00) // document end
-  let result = writer.flush()
-  writer.clear()
-  let len = result.length()
-  let len_bytes = encode_i32(len)
-  for i in 0..<4 {
-    result[i] = len_bytes[i]
-  }
-  Bytes::from_array(result)
+fn encode_document(map : Map[String, BsonValue]) -> Bytes raise BsonError {
+  let writer = Buffer(size_hint=128)
+  write_document(writer, map)
+  writer.to_bytes()
 }
 
 ///|
-/// Get BSON type code for a BsonValue
-fn get_type_code(v : BsonValue) -> Byte {
-  match v {
+fn write_document(
+  writer : Buffer,
+  map : Map[String, BsonValue],
+) -> Unit raise BsonError {
+  let body = Buffer(size_hint=128)
+  for key, value in map {
+    body.write_byte(get_type_code(value))
+    write_cstring(body, key)
+    write_element(body, value)
+  }
+  write_container(writer, body)
+}
+
+///|
+fn write_container(writer : Buffer, body : Buffer) -> Unit {
+  body.write_byte(0x00)
+  writer.write_int_le(body.length() + 4)
+  writer.write_bytes(body.to_bytes())
+}
+
+///|
+fn get_type_code(value : BsonValue) -> Byte {
+  match value {
     Double(_) => 0x01
     String(_) => 0x02
     Document(_) => 0x03
@@ -52,80 +50,47 @@ fn get_type_code(v : BsonValue) -> Byte {
 }
 
 ///|
-/// Write a BSON element
-fn write_element(
-  writer : @buffer.BufferWriter,
-  v : BsonValue,
-) -> Unit raise Error {
-  match v {
-    Double(_) => raise BsonError::UnsupportedType(0x01) // TODO: implement f64 -> byte[8]
-    String(s) => write_string(writer, s)
-    Document(m) => {
-      let bytes = encode_document(m)
-      writer.write_all(bytes.to_array())
-    }
-    Array(arr) => write_array(writer, arr)
-    Boolean(b) => writer.write_byte(if b { 1 } else { 0 })
-    Null => () // no content
-    Int32(i) => writer.write_all(encode_i32(i))
-    Int64(i) => writer.write_all(encode_i64(i))
+fn write_element(writer : Buffer, value : BsonValue) -> Unit raise BsonError {
+  match value {
+    Double(value) => writer.write_double_le(value)
+    String(value) => write_string(writer, value)
+    Document(value) => write_document(writer, value)
+    Array(value) => write_array(writer, value)
+    Boolean(value) => writer.write_byte(if value { 1 } else { 0 })
+    Null => ()
+    Int32(value) => writer.write_int_le(value)
+    Int64(value) => writer.write_int64_le(value)
   }
 }
 
 ///|
-/// Write a BSON array (index as string keys)
 fn write_array(
-  writer : @buffer.BufferWriter,
-  arr : Array[BsonValue],
-) -> Unit raise Error {
-  let inner = Map([], capacity=arr.length())
-  for i in 0..<arr.length() {
-    inner.set(i.to_string(), arr[i])
+  writer : Buffer,
+  values : Array[BsonValue],
+) -> Unit raise BsonError {
+  let body = Buffer(size_hint=128)
+  for index, value in values {
+    body.write_byte(get_type_code(value))
+    write_cstring(body, index.to_string())
+    write_element(body, value)
   }
-  let bytes = encode_document(inner)
-  writer.write_all(bytes.to_array())
+  write_container(writer, body)
 }
 
 ///|
-/// Write a CString (null-terminated)
-fn write_cstring(writer : @buffer.BufferWriter, s : String) -> Unit raise Error {
-  let bytes = @buffer.string_to_utf8_bytes(s).to_array()
-  writer.write_all(bytes)
+fn write_cstring(writer : Buffer, value : String) -> Unit raise BsonError {
+  let bytes = @utf8.encode(value)
+  if bytes.find(b"\x00") is Some(_) {
+    raise InvalidString("CString cannot contain a null character")
+  }
+  writer.write_bytes(bytes)
   writer.write_byte(0x00)
 }
 
 ///|
-/// Write a BSON string (length + content + null)
-fn write_string(writer : @buffer.BufferWriter, s : String) -> Unit raise Error {
-  let bytes = @buffer.string_to_utf8_bytes(s).to_array()
-  let len = bytes.length() + 1
-  writer.write_all(encode_i32(len))
-  writer.write_all(bytes)
+fn write_string(writer : Buffer, value : String) -> Unit {
+  let bytes = @utf8.encode(value)
+  writer.write_int_le(bytes.length() + 1)
+  writer.write_bytes(bytes)
   writer.write_byte(0x00)
-}
-
-///|
-/// Encode Int32 to 4 bytes (little endian)
-fn encode_i32(v : Int) -> Array[Byte] {
-  [
-    (v & 0xFF).to_byte(),
-    ((v >> 8) & 0xFF).to_byte(),
-    ((v >> 16) & 0xFF).to_byte(),
-    ((v >> 24) & 0xFF).to_byte(),
-  ]
-}
-
-///|
-/// Encode Int64 to 8 bytes (little endian)
-fn encode_i64(v : Int) -> Array[Byte] {
-  [
-    (v & 0xFF).to_byte(),
-    ((v >> 8) & 0xFF).to_byte(),
-    ((v >> 16) & 0xFF).to_byte(),
-    ((v >> 24) & 0xFF).to_byte(),
-    ((v >> 32) & 0xFF).to_byte(),
-    ((v >> 40) & 0xFF).to_byte(),
-    ((v >> 48) & 0xFF).to_byte(),
-    ((v >> 56) & 0xFF).to_byte(),
-  ]
 }

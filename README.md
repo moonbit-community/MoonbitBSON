@@ -11,7 +11,7 @@
 
 ## 🚀 Features
 
-* Supports core BSON types: **String**, **Int32**, **Bool**, **Document**, **Array**
+* Supports core BSON types: **Double**, **String**, **Int32**, **Int64**, **Bool**, **Document**, **Array**
 * Rust-like `BsonValue` enum for type-safe construction & traversal
 * Full support for nested documents and arrays
 * Chainable, ergonomic APIs to build maps and arrays
@@ -27,10 +27,12 @@
 moon add ZSeanYves/MoonbitBSON
 ```
 
-Or edit `moon.mod.json`:
+Or edit `moon.mod`:
 
-```json
-"import": ["ZSeanYves/MoonbitBSON"]
+```moonbit
+import {
+  "ZSeanYves/MoonbitBSON",
+}
 ```
 
 ---
@@ -39,14 +41,14 @@ Or edit `moon.mod.json`:
 
 | Variant    | Payload Type             | Tag  |
 | ---------- | ------------------------ | ---- |
-| `Double`   | `Float`                  | 0x01 |
+| `Double`   | `Double`                 | 0x01 |
 | `String`   | `String`                 | 0x02 |
 | `Document` | `Map[String, BsonValue]` | 0x03 |
 | `Array`    | `Array[BsonValue]`       | 0x04 |
 | `Boolean`  | `Bool`                   | 0x08 |
 | `Null`     | `-`                      | 0x0A |
 | `Int32`    | `Int`                    | 0x10 |
-| `Int64`    | `Int`                    | 0x12 |
+| `Int64`    | `Int64`                  | 0x12 |
 
 > **Not covered yet:** Binary, ObjectId, UTC datetime, Regex, Timestamp, Decimal128, and other extended BSON types.
 
@@ -89,9 +91,9 @@ let back = from_bson_safe(bin)  // Returns BsonValue::Null on error
 | `bson_array`    | `bson_array() -> BsonValue`        | Create an empty BSON **Array**.         |
 | `bson_bool`     | `bson_bool(Bool) -> BsonValue`     | Create a BSON **Boolean** from a bool.  |
 | `bson_document` | `bson_document() -> BsonValue`     | Create an empty BSON **Document**.      |
-| `bson_double`   | `bson_double(Float) -> BsonValue`  | Create a BSON **Double** from a float.  |
+| `bson_double`   | `bson_double(Double) -> BsonValue` | Create a BSON **Double** from a double. |
 | `bson_int32`    | `bson_int32(Int) -> BsonValue`     | Create a BSON **Int32** from an int.    |
-| `bson_int64`    | `bson_int64(Int) -> BsonValue`     | Create a BSON **Int64** from an int.    |
+| `bson_int64`    | `bson_int64(Int64) -> BsonValue`   | Create a BSON **Int64** from an Int64.  |
 | `bson_null`     | `bson_null() -> BsonValue`         | Create a BSON **Null**.                 |
 | `bson_string`   | `bson_string(String) -> BsonValue` | Create a BSON **String** from a string. |
 
@@ -99,11 +101,11 @@ let back = from_bson_safe(bin)  // Returns BsonValue::Null on error
 
 | Function         | Signature                               | Description                                                         |
 | ---------------- | --------------------------------------- | ------------------------------------------------------------------- |
-| `decode_bson`    | `decode_bson(Bytes) -> BsonValue raise` | Decode `Bytes` into a `BsonValue` (top-level should be a Document). |
-| `encode_bson`    | `encode_bson(BsonValue) -> Bytes raise` | Encode a top-level **Document** as `Bytes`.                         |
-| `from_bson`      | `from_bson(Bytes) -> BsonValue raise`   | Convenience wrapper around `decode_bson`.                           |
+| `decode_bson`    | `decode_bson(Bytes) -> BsonValue raise BsonError` | Decode `Bytes` into a `BsonValue` (top-level should be a Document). |
+| `encode_bson`    | `encode_bson(BsonValue) -> Bytes raise BsonError` | Encode a top-level **Document** as `Bytes`.                         |
+| `from_bson`      | `from_bson(Bytes) -> BsonValue raise BsonError`   | Convenience wrapper around `decode_bson`.                           |
 | `from_bson_safe` | `from_bson_safe(Bytes) -> BsonValue`    | Safe decode wrapper: returns `BsonValue::Null` on failure.          |
-| `to_bson`        | `to_bson(BsonValue) -> Bytes raise`     | Convenience wrapper around `encode_bson`.                           |
+| `to_bson`        | `to_bson(BsonValue) -> Bytes raise BsonError`     | Convenience wrapper around `encode_bson`.                           |
 | `to_bson_safe`   | `to_bson_safe(BsonValue) -> Bytes`      | Safe encode wrapper: returns empty `Bytes` on failure.              |
 
 ### 🧱 `BsonValue` Methods
@@ -113,7 +115,7 @@ let back = from_bson_safe(bin)  // Returns BsonValue::Null on error
 | `BsonValue::as_array`    | `BsonValue::as_array(Self) -> Array[Self]?`         | If Array, return its elements; otherwise `None`. |
 | `BsonValue::as_document` | `BsonValue::as_document(Self) -> Map[String,Self]?` | If Document, return the map; otherwise `None`.   |
 | `BsonValue::as_int32`    | `BsonValue::as_int32(Self) -> Int?`                 | If Int32, return the integer; otherwise `None`.  |
-| `BsonValue::as_int64`    | `BsonValue::as_int64(Self) -> Int?`                 | If Int64, return the integer; otherwise `None`.  |
+| `BsonValue::as_int64`    | `BsonValue::as_int64(Self) -> Int64?`               | If Int64, return the integer; otherwise `None`.  |
 | `BsonValue::as_string`   | `BsonValue::as_string(Self) -> String?`             | If String, return the string; otherwise `None`.  |
 | `BsonValue::is_array`    | `BsonValue::is_array(Self) -> Bool`                 | Whether it’s an Array.                           |
 | `BsonValue::is_document` | `BsonValue::is_document(Self) -> Bool`              | Whether it’s a Document.                         |
@@ -158,7 +160,6 @@ let profile = bson_document()
 ## ❗ Limitations
 
 * Only the types listed above are implemented; extended BSON types (Binary, ObjectId, etc.) are not supported yet.
-* `Int64` behavior may vary across environments—use with care when portability is required.
 
 ---
 

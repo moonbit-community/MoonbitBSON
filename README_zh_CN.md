@@ -11,7 +11,7 @@
 
 ## 🚀 功能特性
 
-* 支持 BSON 格式皆必的类型：String、Int32、Bool、Document、Array
+* 支持 BSON 核心类型：Double、String、Int32、Int64、Bool、Document、Array
 * 封装类 Rust-like 的 `BsonValue` 进行类型表示
 * 支持嵌套文档和数组编解码
 * 用户可维护字典、数组接口进行结构
@@ -27,10 +27,12 @@
 moon add ZSeanYves/MoonbitBSON
 ```
 
-或编辑 `moon.mod.json`：
+或编辑 `moon.mod`：
 
-```json
-"import": ["ZSeanYves/MoonbitBSON"]
+```moonbit
+import {
+  "ZSeanYves/MoonbitBSON",
+}
 ```
 
 
@@ -38,14 +40,14 @@ moon add ZSeanYves/MoonbitBSON
 
 | 枚举成员       | 负载类型                     | 备注   |
 | ---------- | ------------------------ | ---- |
-| `Double`   | `Float`                  | 0x01 |
+| `Double`   | `Double`                 | 0x01 |
 | `String`   | `String`                 | 0x02 |
 | `Document` | `Map[String, BsonValue]` | 0x03 |
 | `Array`    | `Array[BsonValue]`       | 0x04 |
 | `Boolean`  | `Bool`                   | 0x08 |
 | `Null`     | `-`                      | 0x0A |
 | `Int32`    | `Int`                    | 0x10 |
-| `Int64`    | `Int`                    | 0x12 |
+| `Int64`    | `Int64`                  | 0x12 |
 
 > **未覆盖**：Binary、ObjectId、UTC datetime、Regex、Timestamp、Decimal128 等扩展类型当前未实现。
 
@@ -84,9 +86,9 @@ let back = from_bson_safe(bin)     // 出错时返回 BsonValue::Null
 | `bson_array`    | `bson_array() -> BsonValue`        | 创建一个空的 BSON 数组（Array）。     |
 | `bson_bool`     | `bson_bool(Bool) -> BsonValue`     | 用布尔值创建 BSON Boolean 值。     |
 | `bson_document` | `bson_document() -> BsonValue`     | 创建一个空的 BSON 文档（Document）。  |
-| `bson_double`   | `bson_double(Float) -> BsonValue`  | 用 64 位浮点数创建 BSON Double 值。 |
+| `bson_double`   | `bson_double(Double) -> BsonValue` | 用 64 位浮点数创建 BSON Double 值。 |
 | `bson_int32`    | `bson_int32(Int) -> BsonValue`     | 用 32 位整型创建 BSON Int32 值。   |
-| `bson_int64`    | `bson_int64(Int) -> BsonValue`     | 用 64 位整型创建 BSON Int64 值。   |
+| `bson_int64`    | `bson_int64(Int64) -> BsonValue`   | 用 64 位整型创建 BSON Int64 值。   |
 | `bson_null`     | `bson_null() -> BsonValue`         | 创建 BSON Null 值。            |
 | `bson_string`   | `bson_string(String) -> BsonValue` | 用给定字符串创建 BSON String 值。    |
 
@@ -94,11 +96,11 @@ let back = from_bson_safe(bin)     // 出错时返回 BsonValue::Null
 
 | 函数               | 签名                                      | 说明                                          |
 | ---------------- | --------------------------------------- | ------------------------------------------- |
-| `decode_bson`    | `decode_bson(Bytes) -> BsonValue raise` | 从 `Bytes` 解码出一个 `BsonValue`（顶层应为 Document）。 |
-| `encode_bson`    | `encode_bson(BsonValue) -> Bytes raise` | 将一个 *Document* 作为顶层对象编码为 `Bytes`。           |
-| `from_bson`      | `from_bson(Bytes) -> BsonValue raise`   | 便捷解码封装（内部调用 `decode_bson`）。                 |
+| `decode_bson`    | `decode_bson(Bytes) -> BsonValue raise BsonError` | 从 `Bytes` 解码出一个 `BsonValue`（顶层应为 Document）。 |
+| `encode_bson`    | `encode_bson(BsonValue) -> Bytes raise BsonError` | 将一个 *Document* 作为顶层对象编码为 `Bytes`。           |
+| `from_bson`      | `from_bson(Bytes) -> BsonValue raise BsonError`   | 便捷解码封装（内部调用 `decode_bson`）。                 |
 | `from_bson_safe` | `from_bson_safe(Bytes) -> BsonValue`    | 安全解码封装：失败时返回 `BsonValue::Null`。             |
-| `to_bson`        | `to_bson(BsonValue) -> Bytes raise`     | 便捷编码封装（内部调用 `encode_bson`）。                 |
+| `to_bson`        | `to_bson(BsonValue) -> Bytes raise BsonError`     | 便捷编码封装（内部调用 `encode_bson`）。                 |
 | `to_bson_safe`   | `to_bson_safe(BsonValue) -> Bytes`      | 安全编码封装：失败时返回空 `Bytes`。                      |
 
 ### 🧱 `BsonValue` 方法
@@ -108,7 +110,7 @@ let back = from_bson_safe(bin)     // 出错时返回 BsonValue::Null
 | `BsonValue::as_array`    | `BsonValue::as_array(Self) -> Array[Self]?`          | 如果是 Array，返回元素数组；否则返回 None。                 |
 | `BsonValue::as_document` | `BsonValue::as_document(Self) -> Map[String, Self]?` | 如果是 Document，返回 Map；否则返回 None。              |
 | `BsonValue::as_int32`    | `BsonValue::as_int32(Self) -> Int?`                  | 如果是 Int32，返回 Int；否则返回 None。                 |
-| `BsonValue::as_int64`    | `BsonValue::as_int64(Self) -> Int?`                  | 如果是 Int64，返回 Int；否则返回 None。                 |
+| `BsonValue::as_int64`    | `BsonValue::as_int64(Self) -> Int64?`                | 如果是 Int64，返回 Int64；否则返回 None。               |
 | `BsonValue::as_string`   | `BsonValue::as_string(Self) -> String?`              | 如果是 String，返回 String；否则返回 None。             |
 | `BsonValue::is_array`    | `BsonValue::is_array(Self) -> Bool`                  | 是否为 Array。                                  |
 | `BsonValue::is_document` | `BsonValue::is_document(Self) -> Bool`               | 是否为 Document。                               |
@@ -147,7 +149,6 @@ let profile = bson_document()
 ## ❗ 已知限制
 
 * 仅实现了上表列出的 BSON 类型，暂未覆盖 Binary、ObjectId 等扩展类型。
-* 目前 `Int64` 的行为在不同运行环境可能存在兼容性差异，建议仅在确有需要时使用。
 
 ## 🧪 测试
 
