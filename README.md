@@ -2,7 +2,7 @@
 
 [English](https://github.com/moonbit-community/MoonBitBSON/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/MoonBitBSON/blob/main/README_zh_CN.md)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/MoonBitBSON/bsonlite-ci.yml)](https://github.com/moonbit-community/MoonBitBSON/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/MoonBitBSON/check.yml)](https://github.com/moonbit-community/MoonBitBSON/actions)
 [![License](https://img.shields.io/github/license/moonbit-community/MoonBitBSON)](LICENSE)
 
 **MoonBitBSON** is a lightweight BSON utility library for **MoonBit**. It supports encoding and decoding the core BSON types (strings, integers, booleans, arrays, and documents). The API is small and easy to use, suitable for learning, experiments, and format conversion tasks.
