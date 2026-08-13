@@ -1,9 +1,9 @@
 # 📦 BsonLite: A Lightweight BSON Encoder/Decoder for MoonBit
 
-[English](https://github.com/ZSeanYves/BsonLite/blob/main/README.md) | [简体中文](https://github.com/ZSeanYves/BsonLite/blob/main/README_zh_CN.md)
+[English](https://github.com/moonbit-community/BsonLite/blob/main/README.md) | [简体中文](https://github.com/moonbit-community/BsonLite/blob/main/README_zh_CN.md)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/ZSeanYves/BsonLite/bsonlite-ci.yml)](https://github.com/ZSeanYves/BsonLite/actions)
-[![License](https://img.shields.io/github/license/ZSeanYves/BsonLite)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/moonbit-community/BsonLite/bsonlite-ci.yml)](https://github.com/moonbit-community/BsonLite/actions)
+[![License](https://img.shields.io/github/license/moonbit-community/BsonLite)](LICENSE)
 
 **BsonLite** is a lightweight BSON utility library for **MoonBit**. It supports encoding and decoding the core BSON types (strings, integers, booleans, arrays, and documents). The API is small and easy to use, suitable for learning, experiments, and format conversion tasks.
 
@@ -24,14 +24,14 @@
 ## 📆 Installation
 
 ```bash
-moon add ZSeanYves/MoonbitBSON
+moon add moonbit-community/MoonbitBSON
 ```
 
 Or edit `moon.mod`:
 
 ```moonbit
 import {
-  "ZSeanYves/MoonbitBSON",
+  "moonbit-community/MoonbitBSON",
 }
 ```
 
@@ -59,7 +59,7 @@ import {
 ### Build → Encode → Decode
 
 ```moonbit
-use ZSeanYves/bsonlite
+use moonbit-community/bsonlite
 
 let user = bson_document()
   .set("name", bson_string("Ada"))
