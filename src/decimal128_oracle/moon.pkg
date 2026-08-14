@@ -1,0 +1,6 @@
+import {
+  "moonbit-community/bson",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")

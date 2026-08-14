@@ -1,4 +1,24 @@
 import {
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/double",
+  "moonbitlang/core/encoding/base64",
   "moonbitlang/core/encoding/utf8",
-  "moonbitlang/core/test",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+  "moonbitlang/core/random",
+  "moonbitlang/core/ref",
+  "moonbitlang/core/quickcheck",
+  "moonbitlang/core/strconv",
 }
+
+options(
+  "is-main": false,
+  "native-stub": [ "object_id_entropy_native.c" ],
+  targets: {
+    "object_id_entropy_native.mbt": [ "native" ],
+    "object_id_entropy_js.mbt": [ "js" ],
+    "object_id_entropy_portable.mbt": [ "wasm", "wasm-gc" ],
+  },
+)
