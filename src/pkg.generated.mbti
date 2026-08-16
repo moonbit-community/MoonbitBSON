@@ -41,7 +41,10 @@ pub fn[T : ToBson] to_bson(T) -> Bson raise BsonError
 pub suberror BsonError {
   Failure(BsonErrorInfo)
 } derive(Eq, @debug.Debug)
+pub fn BsonError::equal(Self, Self) -> Bool
 pub fn BsonError::info(Self) -> BsonErrorInfo
+pub fn BsonError::not_equal(Self, Self) -> Bool
+pub fn BsonError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 pub struct Binary {
@@ -50,8 +53,11 @@ pub struct Binary {
 } derive(Eq, @debug.Debug)
 pub fn Binary::as_uuid(Self) -> Uuid?
 pub fn Binary::bytes(Self) -> Bytes
+pub fn Binary::equal(Self, Self) -> Bool
 pub fn Binary::new(BinarySubtype, Bytes) -> Self
+pub fn Binary::not_equal(Self, Self) -> Bool
 pub fn Binary::subtype(Self) -> BinarySubtype
+pub fn Binary::to_repr(Self) -> @debug.Repr
 
 pub(all) enum BinarySubtype {
   Generic
@@ -67,8 +73,11 @@ pub(all) enum BinarySubtype {
   Reserved(Byte)
   UserDefined(Byte)
 } derive(Eq, @debug.Debug)
+pub fn BinarySubtype::equal(Self, Self) -> Bool
 pub fn BinarySubtype::from_byte(Byte) -> Self
+pub fn BinarySubtype::not_equal(Self, Self) -> Bool
 pub fn BinarySubtype::to_byte(Self) -> Byte
+pub fn BinarySubtype::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Bson {
   Double(Double)
@@ -107,9 +116,14 @@ pub fn Bson::as_regex(Self) -> Regex?
 pub fn Bson::as_string(Self) -> String?
 pub fn Bson::as_timestamp(Self) -> Timestamp?
 pub fn Bson::as_uuid(Self) -> Uuid?
+pub fn Bson::equal(Self, Self) -> Bool
+pub fn Bson::from_bson(Self) -> Self raise BsonError
 pub fn Bson::from_extended_json(Json) -> Self raise BsonError
+pub fn Bson::not_equal(Self, Self) -> Bool
+pub fn Bson::to_bson(Self) -> Self raise BsonError
 pub fn Bson::to_extended_json(Self) -> Json raise BsonError
 pub fn Bson::to_relaxed_extended_json(Self) -> Json raise BsonError
+pub fn Bson::to_repr(Self) -> @debug.Repr
 pub fn Bson::type_name(Self) -> String
 pub impl FromBson for Bson
 pub impl ToBson for Bson
@@ -120,10 +134,13 @@ pub struct BsonErrorInfo {
   path : String
   message : String
 } derive(Eq, @debug.Debug)
+pub fn BsonErrorInfo::equal(Self, Self) -> Bool
 pub fn BsonErrorInfo::kind(Self) -> BsonErrorKind
 pub fn BsonErrorInfo::message(Self) -> String
+pub fn BsonErrorInfo::not_equal(Self, Self) -> Bool
 pub fn BsonErrorInfo::offset(Self) -> Int
 pub fn BsonErrorInfo::path(Self) -> String
+pub fn BsonErrorInfo::to_repr(Self) -> @debug.Repr
 
 pub(all) enum BsonErrorKind {
   UnexpectedEnd
@@ -146,6 +163,9 @@ pub(all) enum BsonErrorKind {
   TypeMismatch
   UnsupportedEntropy
 } derive(Eq, @debug.Debug)
+pub fn BsonErrorKind::equal(Self, Self) -> Bool
+pub fn BsonErrorKind::not_equal(Self, Self) -> Bool
+pub fn BsonErrorKind::to_repr(Self) -> @debug.Repr
 
 pub struct BsonStreamDecoder {
   mut pending : Bytes
@@ -153,6 +173,7 @@ pub struct BsonStreamDecoder {
 pub fn BsonStreamDecoder::finish(Self) -> Unit raise BsonError
 pub fn BsonStreamDecoder::new() -> Self
 pub fn BsonStreamDecoder::push(Self, BytesView) -> Array[Document] raise BsonError
+pub fn BsonStreamDecoder::to_repr(Self) -> @debug.Repr
 
 pub struct BsonStreamEncoder {
   buffer : @buffer.Buffer
@@ -168,14 +189,20 @@ pub struct BsonStreamRawDecoder {
 pub fn BsonStreamRawDecoder::finish(Self) -> Unit raise BsonError
 pub fn BsonStreamRawDecoder::new(max_size? : Int) -> Self
 pub fn BsonStreamRawDecoder::push(Self, BytesView) -> Array[RawDocumentView] raise BsonError
+pub fn BsonStreamRawDecoder::to_repr(Self) -> @debug.Repr
 
 pub struct DateTime {
   milliseconds : Int64
 } derive(Eq, @debug.Debug)
+pub fn DateTime::equal(Self, Self) -> Bool
+pub fn DateTime::from_bson(Bson) -> Self raise BsonError
 pub fn DateTime::from_millis(Int64) -> Self
 pub fn DateTime::from_rfc3339(String) -> Self raise BsonError
+pub fn DateTime::not_equal(Self, Self) -> Bool
 pub fn DateTime::now() -> Self
+pub fn DateTime::to_bson(Self) -> Bson raise BsonError
 pub fn DateTime::to_millis(Self) -> Int64
+pub fn DateTime::to_repr(Self) -> @debug.Repr
 pub fn DateTime::to_rfc3339(Self) -> String raise BsonError
 pub impl FromBson for DateTime
 pub impl ToBson for DateTime
@@ -185,15 +212,23 @@ pub struct DbPointer {
   id : ObjectId
 } derive(Eq, @debug.Debug)
 pub fn DbPointer::collection(Self) -> String
+pub fn DbPointer::equal(Self, Self) -> Bool
 pub fn DbPointer::id(Self) -> ObjectId
 pub fn DbPointer::new(String, ObjectId) -> Self
+pub fn DbPointer::not_equal(Self, Self) -> Bool
+pub fn DbPointer::to_repr(Self) -> @debug.Repr
 
 pub struct Decimal128 {
   bytes : Bytes
 } derive(Eq, @debug.Debug)
 pub fn Decimal128::bytes(Self) -> Bytes
+pub fn Decimal128::equal(Self, Self) -> Bool
+pub fn Decimal128::from_bson(Bson) -> Self raise BsonError
 pub fn Decimal128::from_bytes(Bytes) -> Self raise BsonError
 pub fn Decimal128::from_string(String) -> Self raise BsonError
+pub fn Decimal128::not_equal(Self, Self) -> Bool
+pub fn Decimal128::to_bson(Self) -> Bson raise BsonError
+pub fn Decimal128::to_repr(Self) -> @debug.Repr
 pub fn Decimal128::to_string(Self) -> String
 pub impl FromBson for Decimal128
 pub impl ToBson for Decimal128
@@ -203,17 +238,22 @@ pub struct DecodeOptions {
   max_size : Int
   require_canonical_array_keys : Bool
 } derive(Eq, @debug.Debug)
+pub fn DecodeOptions::equal(Self, Self) -> Bool
 pub fn DecodeOptions::max_depth(Self) -> Int
 pub fn DecodeOptions::max_size(Self) -> Int
 pub fn DecodeOptions::new(max_depth? : Int, max_size? : Int, require_canonical_array_keys? : Bool) -> Self
+pub fn DecodeOptions::not_equal(Self, Self) -> Bool
 pub fn DecodeOptions::require_canonical_array_keys(Self) -> Bool
+pub fn DecodeOptions::to_repr(Self) -> @debug.Repr
 
 pub struct Document {
   values : Map[String, Bson]
 } derive(Eq, @debug.Debug)
 pub fn Document::contains(Self, String) -> Bool
 pub fn Document::entries(Self) -> Array[(String, Bson)]
+pub fn Document::equal(Self, Self) -> Bool
 pub fn Document::from_array(Array[(String, Bson)]) -> Self
+pub fn Document::from_bson(Bson) -> Self raise BsonError
 pub fn Document::from_bytes(Bytes) -> Self raise BsonError
 pub fn Document::from_extended_json(Json) -> Self raise BsonError
 pub fn Document::from_extended_json_string(String) -> Self raise BsonError
@@ -235,6 +275,7 @@ pub fn Document::get_uuid(Self, String) -> Uuid?
 pub fn Document::is_empty(Self) -> Bool
 pub fn Document::length(Self) -> Int
 pub fn Document::new() -> Self
+pub fn Document::not_equal(Self, Self) -> Bool
 pub fn Document::remove(Self, String) -> Unit
 pub fn Document::require(Self, String) -> Bson raise BsonError
 pub fn Document::require_array(Self, String) -> Array[Bson] raise BsonError
@@ -253,11 +294,13 @@ pub fn Document::require_timestamp(Self, String) -> Timestamp raise BsonError
 pub fn Document::require_uuid(Self, String) -> Uuid raise BsonError
 pub fn Document::set(Self, String, Bson) -> Self
 pub fn Document::to_array(Self) -> Array[(String, Bson)]
+pub fn Document::to_bson(Self) -> Bson raise BsonError
 pub fn Document::to_bytes(Self) -> Bytes raise BsonError
 pub fn Document::to_extended_json(Self) -> Json raise BsonError
 pub fn Document::to_extended_json_string(Self, indent? : Int) -> String raise BsonError
 pub fn Document::to_relaxed_extended_json(Self) -> Json raise BsonError
 pub fn Document::to_relaxed_extended_json_string(Self, indent? : Int) -> String raise BsonError
+pub fn Document::to_repr(Self) -> @debug.Repr
 pub fn Document::write_to(Self, @buffer.Buffer) -> Unit raise BsonError
 pub impl FromBson for Document
 pub impl ToBson for Document
@@ -266,29 +309,40 @@ pub struct EncodeOptions {
   max_depth : Int
   max_size : Int
 } derive(Eq, @debug.Debug)
+pub fn EncodeOptions::equal(Self, Self) -> Bool
 pub fn EncodeOptions::max_depth(Self) -> Int
 pub fn EncodeOptions::max_size(Self) -> Int
 pub fn EncodeOptions::new(max_depth? : Int, max_size? : Int) -> Self
+pub fn EncodeOptions::not_equal(Self, Self) -> Bool
+pub fn EncodeOptions::to_repr(Self) -> @debug.Repr
 
 pub struct JavaScriptWithScope {
   code : String
   scope : Document
 } derive(Eq, @debug.Debug)
 pub fn JavaScriptWithScope::code(Self) -> String
+pub fn JavaScriptWithScope::equal(Self, Self) -> Bool
 pub fn JavaScriptWithScope::new(String, Document) -> Self
+pub fn JavaScriptWithScope::not_equal(Self, Self) -> Bool
 pub fn JavaScriptWithScope::scope(Self) -> Document
+pub fn JavaScriptWithScope::to_repr(Self) -> @debug.Repr
 
 pub struct ObjectId {
   bytes : Bytes
 } derive(Eq, @debug.Debug)
 pub fn ObjectId::bytes(Self) -> Bytes
+pub fn ObjectId::equal(Self, Self) -> Bool
+pub fn ObjectId::from_bson(Bson) -> Self raise BsonError
 pub fn ObjectId::from_bytes(Bytes) -> Self raise BsonError
 pub fn ObjectId::from_hex(String) -> Self raise BsonError
 pub fn ObjectId::from_parts(UInt, Bytes, UInt) -> Self raise BsonError
 pub fn ObjectId::new() -> Self raise BsonError
 pub fn ObjectId::new_secure() -> Self raise BsonError
+pub fn ObjectId::not_equal(Self, Self) -> Bool
 pub fn ObjectId::timestamp(Self) -> DateTime
+pub fn ObjectId::to_bson(Self) -> Bson raise BsonError
 pub fn ObjectId::to_hex(Self) -> String
+pub fn ObjectId::to_repr(Self) -> @debug.Repr
 pub impl FromBson for ObjectId
 pub impl ToBson for ObjectId
 
@@ -296,17 +350,23 @@ pub struct RawArrayView {
   document : RawDocumentView
 } derive(Eq, @debug.Debug)
 pub fn RawArrayView::document(Self) -> RawDocumentView
+pub fn RawArrayView::equal(Self, Self) -> Bool
 pub fn RawArrayView::from_bytes(BytesView) -> Self raise BsonError
 pub fn RawArrayView::get(Self, Int) -> RawBsonRef? raise BsonError
 pub fn RawArrayView::iter(Self) -> RawElementViewIter
+pub fn RawArrayView::not_equal(Self, Self) -> Bool
 pub fn RawArrayView::to_array(Self) -> Array[Bson] raise BsonError
+pub fn RawArrayView::to_repr(Self) -> @debug.Repr
 
 pub struct RawBinaryRef {
   subtype : BinarySubtype
   bytes : BytesView
 } derive(Eq, @debug.Debug)
 pub fn RawBinaryRef::bytes(Self) -> BytesView
+pub fn RawBinaryRef::equal(Self, Self) -> Bool
+pub fn RawBinaryRef::not_equal(Self, Self) -> Bool
 pub fn RawBinaryRef::subtype(Self) -> BinarySubtype
+pub fn RawBinaryRef::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RawBsonRef {
   Double(Double)
@@ -331,36 +391,48 @@ pub(all) enum RawBsonRef {
   MinKey
   MaxKey
 } derive(Eq, @debug.Debug)
+pub fn RawBsonRef::equal(Self, Self) -> Bool
+pub fn RawBsonRef::not_equal(Self, Self) -> Bool
 pub fn RawBsonRef::to_bson(Self) -> Bson raise BsonError
+pub fn RawBsonRef::to_repr(Self) -> @debug.Repr
 
 pub struct RawDbPointerRef {
   namespace_value : RawStringRef
   id : BytesView
 } derive(Eq, @debug.Debug)
+pub fn RawDbPointerRef::equal(Self, Self) -> Bool
 pub fn RawDbPointerRef::id_bytes(Self) -> BytesView
 pub fn RawDbPointerRef::namespace_value(Self) -> RawStringRef
+pub fn RawDbPointerRef::not_equal(Self, Self) -> Bool
+pub fn RawDbPointerRef::to_repr(Self) -> @debug.Repr
 
 pub struct RawDocument {
   bytes : Bytes
 } derive(Eq, @debug.Debug)
 pub fn RawDocument::bytes(Self) -> Bytes
 pub fn RawDocument::elements(Self) -> Array[RawElement] raise BsonError
+pub fn RawDocument::equal(Self, Self) -> Bool
 pub fn RawDocument::from_bytes(Bytes) -> Self raise BsonError
 pub fn RawDocument::from_prefix(BytesView) -> (Self, Int) raise BsonError
 pub fn RawDocument::get_element(Self, String) -> RawElement? raise BsonError
+pub fn RawDocument::not_equal(Self, Self) -> Bool
 pub fn RawDocument::to_document(Self) -> Document raise BsonError
+pub fn RawDocument::to_repr(Self) -> @debug.Repr
 pub fn RawDocument::view(Self) -> BytesView
 
 pub struct RawDocumentView {
   bytes : BytesView
 } derive(Eq, @debug.Debug)
 pub fn RawDocumentView::bytes(Self) -> BytesView
+pub fn RawDocumentView::equal(Self, Self) -> Bool
 pub fn RawDocumentView::from_bytes(BytesView) -> Self raise BsonError
 pub fn RawDocumentView::from_prefix(BytesView) -> (Self, Int) raise BsonError
 pub fn RawDocumentView::get(Self, String) -> RawBsonRef? raise BsonError
 pub fn RawDocumentView::iter(Self) -> RawElementViewIter
 pub fn RawDocumentView::length(Self) -> Int
+pub fn RawDocumentView::not_equal(Self, Self) -> Bool
 pub fn RawDocumentView::to_document(Self) -> Document raise BsonError
+pub fn RawDocumentView::to_repr(Self) -> @debug.Repr
 
 pub struct RawElement {
   document : RawDocument
@@ -369,9 +441,12 @@ pub struct RawElement {
   value_start : Int
   value_end : Int
 } derive(Eq, @debug.Debug)
+pub fn RawElement::equal(Self, Self) -> Bool
 pub fn RawElement::key(Self) -> String
+pub fn RawElement::not_equal(Self, Self) -> Bool
 pub fn RawElement::raw_bytes(Self) -> BytesView
 pub fn RawElement::to_bson(Self) -> Bson raise BsonError
+pub fn RawElement::to_repr(Self) -> @debug.Repr
 pub fn RawElement::type_code(Self) -> Byte
 
 pub struct RawElementView {
@@ -389,10 +464,13 @@ pub fn RawElementView::as_double(Self) -> Double? raise BsonError
 pub fn RawElementView::as_int32(Self) -> Int? raise BsonError
 pub fn RawElementView::as_int64(Self) -> Int64? raise BsonError
 pub fn RawElementView::as_string_bytes(Self) -> BytesView? raise BsonError
+pub fn RawElementView::equal(Self, Self) -> Bool
 pub fn RawElementView::key(Self) -> String raise BsonError
 pub fn RawElementView::key_bytes(Self) -> BytesView
+pub fn RawElementView::not_equal(Self, Self) -> Bool
 pub fn RawElementView::raw_bytes(Self) -> BytesView
 pub fn RawElementView::to_bson(Self) -> Bson raise BsonError
+pub fn RawElementView::to_repr(Self) -> @debug.Repr
 pub fn RawElementView::type_code(Self) -> Byte
 pub fn RawElementView::value(Self) -> RawBsonRef raise BsonError
 
@@ -408,46 +486,66 @@ pub struct RawJavaScriptWithScopeRef {
   scope : RawDocumentView
 } derive(Eq, @debug.Debug)
 pub fn RawJavaScriptWithScopeRef::code(Self) -> RawStringRef
+pub fn RawJavaScriptWithScopeRef::equal(Self, Self) -> Bool
+pub fn RawJavaScriptWithScopeRef::not_equal(Self, Self) -> Bool
 pub fn RawJavaScriptWithScopeRef::scope(Self) -> RawDocumentView
+pub fn RawJavaScriptWithScopeRef::to_repr(Self) -> @debug.Repr
 
 pub struct RawRegexRef {
   pattern : BytesView
   options : BytesView
 } derive(Eq, @debug.Debug)
+pub fn RawRegexRef::equal(Self, Self) -> Bool
+pub fn RawRegexRef::not_equal(Self, Self) -> Bool
 pub fn RawRegexRef::options(Self) -> BytesView
 pub fn RawRegexRef::pattern(Self) -> BytesView
 pub fn RawRegexRef::to_regex(Self) -> Regex raise BsonError
+pub fn RawRegexRef::to_repr(Self) -> @debug.Repr
 
 pub struct RawStringRef {
   bytes : BytesView
 } derive(Eq, @debug.Debug)
 pub fn RawStringRef::bytes(Self) -> BytesView
+pub fn RawStringRef::equal(Self, Self) -> Bool
+pub fn RawStringRef::not_equal(Self, Self) -> Bool
+pub fn RawStringRef::to_repr(Self) -> @debug.Repr
 pub fn RawStringRef::to_string(Self) -> String raise BsonError
 
 pub struct Regex {
   pattern : String
   options : String
 } derive(Eq, @debug.Debug)
+pub fn Regex::equal(Self, Self) -> Bool
 pub fn Regex::new(String, String) -> Self
+pub fn Regex::not_equal(Self, Self) -> Bool
 pub fn Regex::options(Self) -> String
 pub fn Regex::pattern(Self) -> String
+pub fn Regex::to_repr(Self) -> @debug.Repr
 
 pub struct Timestamp {
   time : UInt
   increment : UInt
 } derive(Eq, @debug.Debug)
+pub fn Timestamp::equal(Self, Self) -> Bool
 pub fn Timestamp::increment(Self) -> UInt
 pub fn Timestamp::new(UInt, UInt) -> Self
+pub fn Timestamp::not_equal(Self, Self) -> Bool
 pub fn Timestamp::time(Self) -> UInt
+pub fn Timestamp::to_repr(Self) -> @debug.Repr
 
 pub struct Uuid {
   bytes : Bytes
 } derive(Eq, @debug.Debug)
 pub fn Uuid::bytes(Self) -> Bytes
+pub fn Uuid::equal(Self, Self) -> Bool
 pub fn Uuid::from_binary(Binary) -> Self raise BsonError
+pub fn Uuid::from_bson(Bson) -> Self raise BsonError
 pub fn Uuid::from_bytes(Bytes) -> Self raise BsonError
 pub fn Uuid::from_string(String) -> Self raise BsonError
+pub fn Uuid::not_equal(Self, Self) -> Bool
 pub fn Uuid::to_binary(Self) -> Binary
+pub fn Uuid::to_bson(Self) -> Bson raise BsonError
+pub fn Uuid::to_repr(Self) -> @debug.Repr
 pub fn Uuid::to_string(Self) -> String
 pub impl FromBson for Uuid
 pub impl ToBson for Uuid
