@@ -1,0 +1,39 @@
+name: Publish to Mooncakes
+
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mooncakes-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hustcer/setup-moonbit@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: moon version --all
+      - run: moon check --target all --deny-warn --warn-list +73
+      - run: moon test --target all --deny-warn --warn-list +73
+      - run: moon fmt --check src
+      - run: node tools/bson-codegen.mjs --check codegen/example.schema.json src/codegen_generated_test.mbt
+      - run: node tools/bson-derive.mjs --check src/derive_types_test.mbt src/derive_generated_test.mbt
+      - name: Publish validated package
+        env:
+          MOONCAKES_CREDENTIALS: ${{ secrets.MOONCAKES_MOONBIT_COMMUNITY_TOKEN }}
+        run: |
+          test -n "$MOONCAKES_CREDENTIALS"
+          umask 077
+          trap 'rm -f "$HOME/.moon/credentials.json"' EXIT
+          printf '%s' "$MOONCAKES_CREDENTIALS" > "$HOME/.moon/credentials.json"
+          moon publish
