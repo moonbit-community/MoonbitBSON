@@ -1,6 +1,6 @@
 ///|
 fn extended_json_parsing_fails(value : Json) -> Bool {
-  try Bson::from_extended_json(value) catch {
+  try @bson.Bson::from_extended_json(value) catch {
     _ => true
   } noraise {
     _ => false
@@ -10,7 +10,7 @@ fn extended_json_parsing_fails(value : Json) -> Bool {
 ///|
 test "ObjectId hexadecimal conversion" {
   let text = "00112233445566778899aabb"
-  let object_id = ObjectId::from_hex(text)
+  let object_id = @bson.ObjectId::from_hex(text)
   assert_eq(object_id.to_hex(), text)
   assert_eq(
     object_id.bytes(),
@@ -20,7 +20,7 @@ test "ObjectId hexadecimal conversion" {
 
 ///|
 test "canonical Extended JSON numeric wrappers" {
-  let document = Document::new()
+  let document = @bson.Document::new()
     .set("i32", Int32(-1))
     .set("i64", Int64(9223372036854775807L))
     .set("double", Double(1.0))
@@ -38,56 +38,58 @@ test "canonical Extended JSON numeric wrappers" {
     ]),
   )
   assert_eq(json, expected)
-  assert_eq(Document::from_extended_json(json), document)
+  assert_eq(@bson.Document::from_extended_json(json), document)
 }
 
 ///|
 test "canonical Extended JSON special doubles" {
   assert_eq(
-    Bson::Double(@double.not_a_number).to_extended_json(),
+    @bson.Bson::Double(@double.not_a_number).to_extended_json(),
     Json::object(Map([("$numberDouble", Json::string("NaN"))])),
   )
   assert_eq(
-    Bson::Double(@double.infinity).to_extended_json(),
+    @bson.Bson::Double(@double.infinity).to_extended_json(),
     Json::object(Map([("$numberDouble", Json::string("Infinity"))])),
   )
   assert_eq(
-    Bson::Double(-0.0).to_extended_json(),
+    @bson.Bson::Double(-0.0).to_extended_json(),
     Json::object(Map([("$numberDouble", Json::string("-0.0"))])),
   )
 }
 
 ///|
 test "canonical Extended JSON complex values roundtrip" {
-  let id = ObjectId::from_hex("00112233445566778899aabb")
-  let scope = Document::new().set("x", Int32(1))
-  let document = Document::new()
-    .set("binary", Binary(Binary::new(Uuid, b"0123456789abcdef")))
+  let id = @bson.ObjectId::from_hex("00112233445566778899aabb")
+  let scope = @bson.Document::new().set("x", Int32(1))
+  let document = @bson.Document::new()
+    .set("binary", Binary(@bson.Binary::new(Uuid, b"0123456789abcdef")))
     .set("oid", ObjectId(id))
-    .set("date", DateTime(DateTime::from_millis(-1L)))
-    .set("regex", Regex(Regex::new("a.*", "im")))
-    .set("timestamp", Timestamp(Timestamp::new(0xFFFFFFFFU, 7U)))
+    .set("date", DateTime(@bson.DateTime::from_millis(-1L)))
+    .set("regex", Regex(@bson.Regex::new("a.*", "im")))
+    .set("timestamp", Timestamp(@bson.Timestamp::new(0xFFFFFFFFU, 7U)))
     .set(
       "code",
-      JavaScriptWithScope(JavaScriptWithScope::new("return x", scope)),
+      JavaScriptWithScope(@bson.JavaScriptWithScope::new("return x", scope)),
     )
-    .set("db", DbPointer(DbPointer::new("db.collection", id)))
+    .set("db", DbPointer(@bson.DbPointer::new("db.collection", id)))
     .set("undefined", Undefined)
     .set("symbol", Symbol("legacy"))
     .set("min", MinKey)
     .set("max", MaxKey)
   let json = document.to_extended_json()
-  assert_eq(Document::from_extended_json(json), document)
+  assert_eq(@bson.Document::from_extended_json(json), document)
 }
 
 ///|
 test "Extended JSON string entry points" {
   let source = "{\"i\":{\"$numberInt\":\"42\"},\"a\":[true,null,\"x\"]}"
-  let document = Document::from_extended_json_string(source)
+  let document = @bson.Document::from_extended_json_string(source)
   assert_eq(document.get_int32("i"), Some(42))
   assert_eq(document.get_array("a"), Some([Boolean(true), Null, String("x")]))
   assert_eq(
-    Document::from_extended_json_string(document.to_extended_json_string()),
+    @bson.Document::from_extended_json_string(
+      document.to_extended_json_string(),
+    ),
     document,
   )
 }
@@ -123,12 +125,12 @@ test "invalid Extended JSON is rejected" {
 
 ///|
 test "Decimal128 Extended JSON uses canonical text" {
-  let decimal = Decimal128::from_string("1.2500")
-  let bson = Bson::Decimal128(decimal)
+  let decimal = @bson.Decimal128::from_string("1.2500")
+  let bson = @bson.Bson::Decimal128(decimal)
   let json = Json::object(Map([("$numberDecimal", Json::string("1.2500"))]))
   assert_eq(bson.to_extended_json(), json)
   assert_eq(bson.to_relaxed_extended_json(), json)
-  assert_eq(Bson::from_extended_json(json), bson)
+  assert_eq(@bson.Bson::from_extended_json(json), bson)
   assert_true(
     extended_json_parsing_fails(
       Json::object(Map([("$numberDecimal", Json::string("1.2.3"))])),
@@ -138,7 +140,7 @@ test "Decimal128 Extended JSON uses canonical text" {
 
 ///|
 test "relaxed Extended JSON uses native finite numbers" {
-  let document = Document::new()
+  let document = @bson.Document::new()
     .set("i32", Int32(-1))
     .set("i64", Int64(9223372036854775807L))
     .set("double", Double(1.0))
@@ -162,7 +164,7 @@ test "relaxed Extended JSON uses native finite numbers" {
 
 ///|
 test "relaxed Extended JSON integers use the smallest exact BSON type" {
-  let document = Document::from_extended_json_string(
+  let document = @bson.Document::from_extended_json_string(
     "{\"small\":1,\"i32max\":2147483647,\"i64\":2147483648,\"i64max\":9223372036854775807,\"fraction\":1.0}",
   )
   assert_eq(document.get("small"), Some(Int32(1)))
@@ -190,8 +192,8 @@ test "known Extended JSON wrappers reject invalid value shapes" {
   }
   let unknown = Json::object(Map([("$unknown", Json::number(1.0, repr="1"))]))
   assert_eq(
-    Bson::from_extended_json(unknown),
-    Document(Document::new().set("$unknown", Int32(1))),
+    @bson.Bson::from_extended_json(unknown),
+    Document(@bson.Document::new().set("$unknown", Int32(1))),
   )
 }
 
@@ -208,8 +210,8 @@ test "Extended JSON accepts one-digit binary subtype" {
     ]),
   )
   assert_eq(
-    Bson::from_extended_json(json),
-    Binary(Binary::new(Uuid, b"\x01\x02")),
+    @bson.Bson::from_extended_json(json),
+    Binary(@bson.Binary::new(Uuid, b"\x01\x02")),
   )
 }
 
@@ -222,10 +224,10 @@ test "Extended JSON $uuid accepts canonical compact and URN forms" {
       "urn:uuid:00112233-4455-6677-8899-aabbccddeeff",
     ] {
     assert_eq(
-      Bson::from_extended_json(
+      @bson.Bson::from_extended_json(
         Json::object(Map([("$uuid", Json::string(text))])),
       ),
-      Binary(Binary::new(Uuid, bytes)),
+      Binary(@bson.Binary::new(Uuid, bytes)),
     )
   }
 }
@@ -249,7 +251,7 @@ test "relaxed Extended JSON DateTime follows BSON corpus" {
     let (milliseconds, expected_date) = case
     let expected = Json::object(Map([("$date", expected_date)]))
     assert_eq(
-      Bson::DateTime(DateTime::from_millis(milliseconds)).to_relaxed_extended_json(),
+      @bson.Bson::DateTime(@bson.DateTime::from_millis(milliseconds)).to_relaxed_extended_json(),
       expected,
     )
   }
@@ -268,8 +270,8 @@ test "relaxed Extended JSON parses RFC 3339 DateTime" {
     let (text, expected) = case
     let json = Json::object(Map([("$date", Json::string(text))]))
     assert_eq(
-      Bson::from_extended_json(json),
-      DateTime(DateTime::from_millis(expected)),
+      @bson.Bson::from_extended_json(json),
+      DateTime(@bson.DateTime::from_millis(expected)),
     )
   }
 }
@@ -291,11 +293,11 @@ test "relaxed Extended JSON rejects invalid RFC 3339 DateTime" {
 
 ///|
 test "Document writes to official Buffer" {
-  let document = Document::new().set("x", Int32(1))
+  let document = @bson.Document::new().set("x", Int32(1))
   let buffer = @buffer.Buffer()
   buffer.write_bytes(b"prefix")
   document.write_to(buffer)
   assert_true(buffer.to_bytes().has_prefix(b"prefix"[:]))
   let payload = buffer.to_bytes()[6:].to_owned()
-  assert_eq(decode(payload), document)
+  assert_eq(@bson.decode(payload), document)
 }

@@ -46,7 +46,7 @@ pub fn Uuid::from_string(value : String) -> Uuid raise BsonError {
     let low = hex_nibble(hex[index * 2 + 1]).unwrap()
     bytes.push((high * 16 + low).to_byte())
   }
-  { bytes: Bytes::from_array(bytes) }
+  { bytes: Bytes::from_array(bytes), }
 }
 
 ///|

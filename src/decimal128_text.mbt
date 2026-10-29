@@ -2,7 +2,7 @@
 priv enum Decimal128Value {
   DecimalNaN(Bool)
   DecimalInfinity
-  DecimalFinite(Int, BigInt)
+  DecimalFinite(Int32, BigInt)
 }
 
 ///|
@@ -30,9 +30,9 @@ fn parse_decimal128(input : String) -> Decimal128 raise BsonError {
   }
   let lower = unsigned.to_lower()
   let parsed = match lower {
-    "nan" => { negative, value: DecimalNaN(false) }
-    "snan" => { negative, value: DecimalNaN(true) }
-    "infinity" | "inf" => { negative, value: DecimalInfinity }
+    "nan" => { negative, value: DecimalNaN(false), }
+    "snan" => { negative, value: DecimalNaN(true), }
+    "infinity" | "inf" => { negative, value: DecimalInfinity, }
     _ => parse_finite_decimal128(negative, lower)
   }
   pack_decimal128(parsed)
@@ -90,7 +90,7 @@ fn parse_finite_decimal128(
   if coefficient > decimal128_max_coefficient {
     return invalid_decimal128("Decimal128 coefficient exceeds 34 digits")
   }
-  { negative, value: DecimalFinite(exponent.to_int(), coefficient) }
+  { negative, value: DecimalFinite(exponent.to_int(), coefficient), }
 }
 
 ///|
@@ -131,7 +131,7 @@ fn parse_wide_exponent(input : String) -> BigInt raise BsonError {
 }
 
 ///|
-fn remove_decimal_point(input : String) -> (String, Int) raise BsonError {
+fn remove_decimal_point(input : String) -> (String, Int32) raise BsonError {
   let mut point = -1
   for index, code in input.code_units() {
     if code == '.' {
@@ -139,7 +139,7 @@ fn remove_decimal_point(input : String) -> (String, Int) raise BsonError {
         return invalid_decimal128("Decimal128 contains multiple decimal points")
       }
       point = index
-    } else if !(code is ('0'..='9')) {
+    } else if !(code is ('0'..<='9')) {
       return invalid_decimal128("Decimal128 coefficient contains a non-digit")
     }
   }
@@ -174,7 +174,7 @@ fn strip_decimal_leading_zeros(input : String) -> String {
 ///|
 fn truncate_decimal_exact(
   input : String,
-  precision : Int,
+  precision : Int32,
 ) -> String raise BsonError {
   if precision < 0 || precision > input.length() {
     return invalid_decimal128("invalid Decimal128 precision")
@@ -190,7 +190,7 @@ fn truncate_decimal_exact(
 ///|
 fn is_ascii_digits(input : String) -> Bool {
   for code in input.code_units() {
-    if !(code is ('0'..='9')) {
+    if !(code is ('0'..<='9')) {
       return false
     }
   }
@@ -218,9 +218,9 @@ fn unpack_decimal128(decimal : Decimal128) -> ParsedDecimal128 {
   let negative = (bytes[15].to_int() & 0x80) != 0
   let high = bytes[15].to_int()
   if (high & 0x7C) == 0x7C {
-    { negative, value: DecimalNaN((high & 0x02) != 0) }
+    { negative, value: DecimalNaN((high & 0x02) != 0), }
   } else if (high & 0x78) == 0x78 {
-    { negative, value: DecimalInfinity }
+    { negative, value: DecimalInfinity, }
   } else {
     let big_endian = Bytes::makei(16, index => bytes[15 - index])
     let packed = BigInt::from_octets(big_endian[:])
@@ -237,7 +237,7 @@ fn unpack_decimal128(decimal : Decimal128) -> ParsedDecimal128 {
         value
       }
     }
-    { negative, value: DecimalFinite(exponent, coefficient) }
+    { negative, value: DecimalFinite(exponent, coefficient), }
   }
 }
 

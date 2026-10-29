@@ -7038,25 +7038,25 @@ let full_corpus_decimal_errors : Array[FullCorpusError] = [
     id: "decimal128-4.json parse 18: Inexact rounding#1",
     value: "100000000000000000000000000000000000000000000000000000000001",
   },
-  { id: "decimal128-4.json parse 19: Inexact rounding#2", value: "1E-6177" },
-  { id: "decimal128-6.json parse 0: Incomplete Exponent", value: "1e" },
-  { id: "decimal128-6.json parse 1: Exponent at the beginning", value: "E01" },
-  { id: "decimal128-6.json parse 2: Just a decimal place", value: "." },
-  { id: "decimal128-6.json parse 3: 2 decimal places", value: "..3" },
-  { id: "decimal128-6.json parse 4: 2 decimal places", value: ".13.3" },
-  { id: "decimal128-6.json parse 5: 2 decimal places", value: "1..3" },
-  { id: "decimal128-6.json parse 6: 2 decimal places", value: "1.3.4" },
-  { id: "decimal128-6.json parse 7: 2 decimal places", value: "1.34." },
-  { id: "decimal128-6.json parse 8: Decimal with no digits", value: ".e" },
-  { id: "decimal128-6.json parse 9: 2 signs", value: "+-32.4" },
-  { id: "decimal128-6.json parse 10: 2 signs", value: "-+32.4" },
-  { id: "decimal128-6.json parse 11: 2 negative signs", value: "--32.4" },
-  { id: "decimal128-6.json parse 12: 2 negative signs", value: "-32.-4" },
-  { id: "decimal128-6.json parse 13: End in negative sign", value: "32.0-" },
-  { id: "decimal128-6.json parse 14: 2 negative signs", value: "32.4E--21" },
-  { id: "decimal128-6.json parse 15: 2 negative signs", value: "32.4E-2-1" },
-  { id: "decimal128-6.json parse 16: 2 signs", value: "32.4E+-21" },
-  { id: "decimal128-6.json parse 17: Empty string", value: "" },
+  { id: "decimal128-4.json parse 19: Inexact rounding#2", value: "1E-6177", },
+  { id: "decimal128-6.json parse 0: Incomplete Exponent", value: "1e", },
+  { id: "decimal128-6.json parse 1: Exponent at the beginning", value: "E01", },
+  { id: "decimal128-6.json parse 2: Just a decimal place", value: ".", },
+  { id: "decimal128-6.json parse 3: 2 decimal places", value: "..3", },
+  { id: "decimal128-6.json parse 4: 2 decimal places", value: ".13.3", },
+  { id: "decimal128-6.json parse 5: 2 decimal places", value: "1..3", },
+  { id: "decimal128-6.json parse 6: 2 decimal places", value: "1.3.4", },
+  { id: "decimal128-6.json parse 7: 2 decimal places", value: "1.34.", },
+  { id: "decimal128-6.json parse 8: Decimal with no digits", value: ".e", },
+  { id: "decimal128-6.json parse 9: 2 signs", value: "+-32.4", },
+  { id: "decimal128-6.json parse 10: 2 signs", value: "-+32.4", },
+  { id: "decimal128-6.json parse 11: 2 negative signs", value: "--32.4", },
+  { id: "decimal128-6.json parse 12: 2 negative signs", value: "-32.-4", },
+  { id: "decimal128-6.json parse 13: End in negative sign", value: "32.0-", },
+  { id: "decimal128-6.json parse 14: 2 negative signs", value: "32.4E--21", },
+  { id: "decimal128-6.json parse 15: 2 negative signs", value: "32.4E-2-1", },
+  { id: "decimal128-6.json parse 16: 2 signs", value: "32.4E+-21", },
+  { id: "decimal128-6.json parse 17: Empty string", value: "", },
   {
     id: "decimal128-6.json parse 18: leading white space positive number",
     value: " 1",
@@ -7065,17 +7065,17 @@ let full_corpus_decimal_errors : Array[FullCorpusError] = [
     id: "decimal128-6.json parse 19: leading white space negative number",
     value: " -1",
   },
-  { id: "decimal128-6.json parse 20: trailing white space", value: "1 " },
-  { id: "decimal128-6.json parse 21: Invalid", value: "E" },
-  { id: "decimal128-6.json parse 22: Invalid", value: "invalid" },
-  { id: "decimal128-6.json parse 23: Invalid", value: "i" },
-  { id: "decimal128-6.json parse 24: Invalid", value: "in" },
-  { id: "decimal128-6.json parse 25: Invalid", value: "-in" },
-  { id: "decimal128-6.json parse 26: Invalid", value: "Na" },
-  { id: "decimal128-6.json parse 27: Invalid", value: "-Na" },
-  { id: "decimal128-6.json parse 28: Invalid", value: "1.23abc" },
-  { id: "decimal128-6.json parse 29: Invalid", value: "1.23abcE+02" },
-  { id: "decimal128-6.json parse 30: Invalid", value: "1.23E+0aabs2" },
+  { id: "decimal128-6.json parse 20: trailing white space", value: "1 ", },
+  { id: "decimal128-6.json parse 21: Invalid", value: "E", },
+  { id: "decimal128-6.json parse 22: Invalid", value: "invalid", },
+  { id: "decimal128-6.json parse 23: Invalid", value: "i", },
+  { id: "decimal128-6.json parse 24: Invalid", value: "in", },
+  { id: "decimal128-6.json parse 25: Invalid", value: "-in", },
+  { id: "decimal128-6.json parse 26: Invalid", value: "Na", },
+  { id: "decimal128-6.json parse 27: Invalid", value: "-Na", },
+  { id: "decimal128-6.json parse 28: Invalid", value: "1.23abc", },
+  { id: "decimal128-6.json parse 29: Invalid", value: "1.23abcE+02", },
+  { id: "decimal128-6.json parse 30: Invalid", value: "1.23E+0aabs2", },
   {
     id: "decimal128-7.json parse 0: [basx572] Near-specials (Conversion_syntax)",
     value: "-9Inf",
@@ -7610,18 +7610,18 @@ fn full_corpus_hex(value : String) -> Bytes raise {
 }
 
 ///|
-fn full_corpus_hex_nibble(value : UInt16) -> Int raise {
+fn full_corpus_hex_nibble(value : UInt16) -> Int32 raise {
   match value {
-    '0'..='9' => value.to_int() - '0'.to_int()
-    'a'..='f' => value.to_int() - 'a'.to_int() + 10
-    'A'..='F' => value.to_int() - 'A'.to_int() + 10
+    '0'..<='9' => value.to_int() - '0'.to_int()
+    'a'..<='f' => value.to_int() - 'a'.to_int() + 10
+    'A'..<='F' => value.to_int() - 'A'.to_int() + 10
     _ => fail("invalid generated corpus hex")
   }
 }
 
 ///|
 fn full_corpus_decode_fails(value : Bytes) -> Bool {
-  try decode(value) catch {
+  try @bson.decode(value) catch {
     _ => true
   } noraise {
     _ => false
@@ -7630,7 +7630,7 @@ fn full_corpus_decode_fails(value : Bytes) -> Bool {
 
 ///|
 fn full_corpus_decimal_fails(value : String) -> Bool {
-  try Decimal128::from_string(value) catch {
+  try @bson.Decimal128::from_string(value) catch {
     _ => true
   } noraise {
     _ => false
@@ -7639,7 +7639,7 @@ fn full_corpus_decimal_fails(value : String) -> Bool {
 
 ///|
 fn full_corpus_extended_json_fails(value : String) -> Bool {
-  try Document::from_extended_json_string(value) catch {
+  try @bson.Document::from_extended_json_string(value) catch {
     _ => true
   } noraise {
     _ => false
@@ -7649,33 +7649,37 @@ fn full_corpus_extended_json_fails(value : String) -> Bool {
 ///|
 fn full_corpus_check_valid(case : FullCorpusValid) -> Unit raise {
   let canonical = full_corpus_hex(case.canonical_bson)
-  let document = decode(canonical)
-  assert_eq(encode(document), canonical, msg=case.id)
-  assert_eq(RawDocument::from_bytes(canonical).bytes(), canonical, msg=case.id)
-  let from_canonical = Document::from_extended_json_string(
+  let document = @bson.decode(canonical)
+  assert_eq(@bson.encode(document), canonical, msg=case.id)
+  assert_eq(
+    @bson.RawDocument::from_bytes(canonical).bytes(),
+    canonical,
+    msg=case.id,
+  )
+  let from_canonical = @bson.Document::from_extended_json_string(
     case.canonical_extjson,
   )
   let normalized_canonical_json = from_canonical.to_extended_json()
   assert_eq(document.to_extended_json(), normalized_canonical_json, msg=case.id)
   if !case.lossy {
-    assert_eq(encode(from_canonical), canonical, msg=case.id)
+    assert_eq(@bson.encode(from_canonical), canonical, msg=case.id)
   }
   if case.degenerate_bson is Some(degenerate_bson) {
     assert_eq(
-      encode(decode(full_corpus_hex(degenerate_bson))),
+      @bson.encode(@bson.decode(full_corpus_hex(degenerate_bson))),
       canonical,
       msg=case.id,
     )
   }
   if case.degenerate_extjson is Some(degenerate_extjson) {
     assert_eq(
-      Document::from_extended_json_string(degenerate_extjson).to_extended_json(),
+      @bson.Document::from_extended_json_string(degenerate_extjson).to_extended_json(),
       normalized_canonical_json,
       msg=case.id,
     )
   }
   if case.relaxed_extjson is Some(relaxed_extjson) {
-    let normalized_relaxed_json = Document::from_extended_json_string(
+    let normalized_relaxed_json = @bson.Document::from_extended_json_string(
       relaxed_extjson,
     ).to_relaxed_extended_json()
     assert_eq(
@@ -7684,7 +7688,7 @@ fn full_corpus_check_valid(case : FullCorpusValid) -> Unit raise {
       msg=case.id,
     )
     assert_eq(
-      Document::from_extended_json_string(relaxed_extjson).to_relaxed_extended_json(),
+      @bson.Document::from_extended_json_string(relaxed_extjson).to_relaxed_extended_json(),
       normalized_relaxed_json,
       msg=case.id,
     )

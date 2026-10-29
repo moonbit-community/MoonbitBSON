@@ -1,10 +1,10 @@
 ///|
 test "RawDocumentView keeps borrowed element bytes" {
-  let bytes = Document::new()
+  let bytes = @bson.Document::new()
     .set("name", String("Ada"))
     .set("count", Int32(3))
     .to_bytes()
-  let view = RawDocumentView::from_bytes(bytes[:])
+  let view = @bson.RawDocumentView::from_bytes(bytes[:])
   assert_eq(view.bytes(), bytes[:])
   let iterator = view.iter()
   let first = iterator.next().unwrap()
@@ -22,12 +22,12 @@ test "RawDocumentView keeps borrowed element bytes" {
 
 ///|
 test "RawBsonRef borrows nested values and materializes explicitly" {
-  let source = Document::new()
+  let source = @bson.Document::new()
     .set("text", String("borrowed"))
-    .set("bytes", Binary(Binary::new(Generic, b"abc")))
-    .set("nested", Document(Document::new().set("answer", Int32(42))))
+    .set("bytes", Binary(@bson.Binary::new(Generic, b"abc")))
+    .set("nested", Document(@bson.Document::new().set("answer", Int32(42))))
     .set("items", Array([Boolean(true), Int64(7L)]))
-  let view = RawDocumentView::from_bytes(source.to_bytes()[:])
+  let view = @bson.RawDocumentView::from_bytes(source.to_bytes()[:])
   match view.get("text").unwrap() {
     String(value) => assert_eq(value.to_string(), "borrowed")
     _ => fail("text was not a borrowed string")
@@ -55,10 +55,10 @@ test "RawBsonRef borrows nested values and materializes explicitly" {
 
 ///|
 test "BsonStreamDecoder handles split and coalesced frames" {
-  let first = Document::new().set("first", Boolean(true)).to_bytes()
-  let second = Document::new().set("second", Int64(2L)).to_bytes()
+  let first = @bson.Document::new().set("first", Boolean(true)).to_bytes()
+  let second = @bson.Document::new().set("second", Int64(2L)).to_bytes()
   let framed = first + second
-  let stream = BsonStreamDecoder::new()
+  let stream = @bson.BsonStreamDecoder::new()
   assert_eq(stream.push(framed[:first.length() - 1]).length(), 0)
   let documents = stream.push(framed[first.length() - 1:])
   assert_eq(documents.length(), 2)
@@ -69,11 +69,11 @@ test "BsonStreamDecoder handles split and coalesced frames" {
 
 ///|
 test "BsonStreamRawDecoder returns borrowed views across frame boundaries" {
-  let first = Document::new().set("first", Boolean(true)).to_bytes()
-  let second = Document::new().set("second", Int64(2L)).to_bytes()
-  let third = Document::new().set("third", Null).to_bytes()
+  let first = @bson.Document::new().set("first", Boolean(true)).to_bytes()
+  let second = @bson.Document::new().set("second", Int64(2L)).to_bytes()
+  let third = @bson.Document::new().set("third", Null).to_bytes()
   let framed = first + second + third
-  let stream = BsonStreamRawDecoder::new()
+  let stream = @bson.BsonStreamRawDecoder::new()
   let first_views = stream.push(framed[:first.length() + 2])
   assert_eq(first_views.length(), 1)
   assert_eq(first_views[0].get("first").unwrap().to_bson(), Boolean(true))
@@ -88,8 +88,8 @@ test "BsonStreamRawDecoder returns borrowed views across frame boundaries" {
 
 ///|
 test "BsonStreamRawDecoder waits for a complete header and rejects incomplete EOF" {
-  let bytes = Document::new().set("ok", Int32(1)).to_bytes()
-  let stream = BsonStreamRawDecoder::new()
+  let bytes = @bson.Document::new().set("ok", Int32(1)).to_bytes()
+  let stream = @bson.BsonStreamRawDecoder::new()
   assert_eq(stream.push(bytes[:2]).length(), 0)
   assert_eq(stream.push(bytes[2:bytes.length() - 1]).length(), 0)
   try stream.finish() catch {
@@ -101,7 +101,7 @@ test "BsonStreamRawDecoder waits for a complete header and rejects incomplete EO
 
 ///|
 test "BsonStreamRawDecoder rejects invalid frame lengths" {
-  let stream = BsonStreamRawDecoder::new()
+  let stream = @bson.BsonStreamRawDecoder::new()
   try stream.push(b"\x04\x00\x00\x00") catch {
     Failure(info) => assert_eq(info.kind(), InvalidLength)
   } noraise {
@@ -111,7 +111,7 @@ test "BsonStreamRawDecoder rejects invalid frame lengths" {
 
 ///|
 test "BsonStreamRawDecoder enforces max_size before buffering a frame" {
-  let stream = BsonStreamRawDecoder::new(max_size=32)
+  let stream = @bson.BsonStreamRawDecoder::new(max_size=32)
   try stream.push(b"\x00\x04\x00\x00") catch {
     Failure(info) => assert_eq(info.kind(), SizeLimit)
   } noraise {
@@ -121,10 +121,10 @@ test "BsonStreamRawDecoder enforces max_size before buffering a frame" {
 
 ///|
 test "BsonStreamEncoder appends complete frames" {
-  let encoder = BsonStreamEncoder::new()
-  encoder.push(Document::new().set("one", Int32(1)))
-  encoder.push(Document::new().set("two", Int32(2)))
-  let decoder = BsonStreamDecoder::new()
+  let encoder = @bson.BsonStreamEncoder::new()
+  encoder.push(@bson.Document::new().set("one", Int32(1)))
+  encoder.push(@bson.Document::new().set("two", Int32(2)))
+  let decoder = @bson.BsonStreamDecoder::new()
   let documents = decoder.push(encoder.bytes()[:])
   assert_eq(documents.length(), 2)
   assert_eq(documents[0].require_int32("one"), 1)

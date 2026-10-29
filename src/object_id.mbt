@@ -1,8 +1,8 @@
 ///|
-let object_id_initial : (Bytes, UInt)? = None
+let object_id_initial : (Bytes, UInt32)? = None
 
 ///|
-let object_id_state : Ref[(Bytes, UInt)?] = @ref.new(object_id_initial)
+let object_id_state : Ref[(Bytes, UInt32)?] = Ref(object_id_initial)
 
 ///|
 /// Generate an ObjectId using an OS/Web Crypto secure random process value and
@@ -36,9 +36,9 @@ pub fn ObjectId::new_secure() -> ObjectId raise BsonError {
 
 ///|
 pub fn ObjectId::from_parts(
-  timestamp : UInt,
+  timestamp : UInt32,
   process_unique : Bytes,
-  counter : UInt,
+  counter : UInt32,
 ) -> ObjectId raise BsonError {
   if process_unique.length() != 5 {
     raise bson_error(
@@ -73,9 +73,9 @@ pub fn ObjectId::timestamp(self : ObjectId) -> DateTime {
 
 ///|
 fn object_id_bytes(
-  timestamp : UInt,
+  timestamp : UInt32,
   process_unique : Bytes,
-  counter : UInt,
+  counter : UInt32,
 ) -> Bytes {
   Bytes::makei(12, index => {
     match index {
@@ -83,7 +83,7 @@ fn object_id_bytes(
       1 => (timestamp >> 16).to_byte()
       2 => (timestamp >> 8).to_byte()
       3 => timestamp.to_byte()
-      4..=8 => process_unique[index - 4]
+      4..<=8 => process_unique[index - 4]
       9 => (counter >> 16).to_byte()
       10 => (counter >> 8).to_byte()
       _ => counter.to_byte()

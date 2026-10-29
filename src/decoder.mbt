@@ -1,13 +1,13 @@
 ///|
 priv struct Decoder {
   data : BytesView
-  mut position : Int
+  mut position : Int32
   options : DecodeOptions
 }
 
 ///|
 fn Decoder::new(data : BytesView, options : DecodeOptions) -> Decoder {
-  { data, position: 0, options }
+  { data, position: 0, options, }
 }
 
 ///|
@@ -39,7 +39,7 @@ pub fn decode_with_options(
 
 ///|
 /// Decode the first document in a byte view and return the consumed byte count.
-pub fn decode_prefix(data : BytesView) -> (Document, Int) raise BsonError {
+pub fn decode_prefix(data : BytesView) -> (Document, Int32) raise BsonError {
   decode_prefix_with_options(data, DecodeOptions::new())
 }
 
@@ -47,7 +47,7 @@ pub fn decode_prefix(data : BytesView) -> (Document, Int) raise BsonError {
 pub fn decode_prefix_with_options(
   data : BytesView,
   options : DecodeOptions,
-) -> (Document, Int) raise BsonError {
+) -> (Document, Int32) raise BsonError {
   let decoder = Decoder::new(data, options)
   let document = decoder.read_document(data.length(), 0, "$")
   (document, decoder.position)
@@ -72,7 +72,7 @@ pub fn RawDocument::to_document(self : RawDocument) -> Document raise BsonError 
 ///|
 pub fn RawDocument::from_prefix(
   data : BytesView,
-) -> (RawDocument, Int) raise BsonError {
+) -> (RawDocument, Int32) raise BsonError {
   let (_, consumed) = decode_prefix(data)
   let bytes = data[0:consumed].to_owned()
   (RawDocument::from_valid_bytes(bytes), consumed)
@@ -81,8 +81,8 @@ pub fn RawDocument::from_prefix(
 ///|
 fn Decoder::read_document(
   self : Decoder,
-  outer_limit : Int,
-  depth : Int,
+  outer_limit : Int32,
+  depth : Int32,
   path : String,
 ) -> Document raise BsonError {
   if depth > self.options.max_depth {
@@ -120,8 +120,8 @@ fn Decoder::read_document(
 ///|
 fn Decoder::read_array(
   self : Decoder,
-  outer_limit : Int,
-  depth : Int,
+  outer_limit : Int32,
+  depth : Int32,
   path : String,
 ) -> Array[Bson] raise BsonError {
   if depth > self.options.max_depth {
@@ -169,8 +169,8 @@ fn Decoder::read_array(
 fn Decoder::read_element(
   self : Decoder,
   type_code : Byte,
-  limit : Int,
-  depth : Int,
+  limit : Int32,
+  depth : Int32,
   path : String,
 ) -> Bson raise BsonError {
   match type_code {
@@ -257,7 +257,7 @@ fn Decoder::read_element(
 ///|
 fn Decoder::read_binary(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
 ) -> Binary raise BsonError {
   let length_offset = self.position
@@ -298,8 +298,8 @@ fn Decoder::read_binary(
 ///|
 fn Decoder::read_javascript_with_scope(
   self : Decoder,
-  outer_limit : Int,
-  depth : Int,
+  outer_limit : Int32,
+  depth : Int32,
   path : String,
 ) -> JavaScriptWithScope raise BsonError {
   let start = self.position
@@ -329,7 +329,7 @@ fn Decoder::read_javascript_with_scope(
 ///|
 fn Decoder::read_string(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
 ) -> String raise BsonError {
   let length_offset = self.position
@@ -357,7 +357,7 @@ fn Decoder::read_string(
 ///|
 fn Decoder::read_cstring(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
 ) -> String raise BsonError {
   let start = self.position
@@ -393,11 +393,11 @@ fn decode_utf8(bytes : BytesView, path : String) -> String raise BsonError {
 ///|
 fn Decoder::checked_container_end(
   self : Decoder,
-  start : Int,
-  total_length : Int,
-  outer_limit : Int,
+  start : Int32,
+  total_length : Int32,
+  outer_limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   if total_length < 5 {
     raise bson_error(
       InvalidLength,
@@ -423,7 +423,7 @@ fn Decoder::checked_container_end(
 ///|
 fn Decoder::read_terminator(
   self : Decoder,
-  end : Int,
+  end : Int32,
   path : String,
 ) -> Unit raise BsonError {
   if self.position != end - 1 || self.read_byte(end, path) != 0x00 {
@@ -439,7 +439,7 @@ fn Decoder::read_terminator(
 ///|
 fn Decoder::read_byte(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
 ) -> Byte raise BsonError {
   if self.position >= limit || self.position >= self.data.length() {
@@ -458,8 +458,8 @@ fn Decoder::read_byte(
 ///|
 fn Decoder::read_bytes(
   self : Decoder,
-  count : Int,
-  limit : Int,
+  count : Int32,
+  limit : Int32,
   path : String,
 ) -> BytesView raise BsonError {
   if count < 0 ||
@@ -480,9 +480,9 @@ fn Decoder::read_bytes(
 ///|
 fn Decoder::read_i32(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let bytes = self.read_bytes(4, limit, path)
   bytes[0].to_int() |
   (bytes[1].to_int() << 8) |
@@ -493,16 +493,16 @@ fn Decoder::read_i32(
 ///|
 fn Decoder::read_u32(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
-) -> UInt raise BsonError {
+) -> UInt32 raise BsonError {
   self.read_i32(limit, path).reinterpret_as_uint()
 }
 
 ///|
 fn Decoder::read_i64(
   self : Decoder,
-  limit : Int,
+  limit : Int32,
   path : String,
 ) -> Int64 raise BsonError {
   let bytes = self.read_bytes(8, limit, path)

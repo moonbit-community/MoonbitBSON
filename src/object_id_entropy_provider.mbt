@@ -2,10 +2,10 @@
 /// Host-provided secure entropy hook for portable targets such as Wasm.
 /// The callback must return exactly `count` unpredictable bytes, or `None`
 /// when it cannot satisfy the request.
-pub type SecureEntropyProvider = (Int) -> Bytes?
+pub type SecureEntropyProvider = (Int32) -> Bytes?
 
 ///|
-let secure_entropy_provider : Ref[SecureEntropyProvider?] = @ref.new(None)
+let secure_entropy_provider : Ref[SecureEntropyProvider?] = Ref(None)
 
 ///|
 pub fn install_secure_entropy_provider(
@@ -20,7 +20,7 @@ pub fn clear_secure_entropy_provider() -> Unit {
 }
 
 ///|
-pub fn secure_entropy_from_provider(count : Int) -> Bytes? raise BsonError {
+pub fn secure_entropy_from_provider(count : Int32) -> Bytes? raise BsonError {
   match secure_entropy_provider.val {
     None => None
     Some(provider) =>

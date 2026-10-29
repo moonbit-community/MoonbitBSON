@@ -23,7 +23,7 @@ export function validateSchema(schema) {
       }
       if (
         typeof field.type !== "string" ||
-        !/^[A-Za-z][A-Za-z0-9_]*(?:\[[A-Za-z0-9_, ?]+\])?[?]?$/.test(field.type)
+        !/^(?:@[A-Za-z_][A-Za-z0-9_]*\.)?[A-Za-z][A-Za-z0-9_]*(?:\[[A-Za-z0-9_@., ?]+\])?[?]?$/.test(field.type)
       ) {
         throw new Error(`${type.name}.${field.name}: invalid MoonBit type ${field.type}`);
       }
@@ -45,28 +45,28 @@ export function generateBsonImpls(schema, sourceDescription) {
     lines.push("///|");
     lines.push(`pub impl ToBson for ${type.name} with fn to_bson(self) {`);
     lines.push("  Document(");
-    lines.push("    Document::new()");
+    lines.push("    @bson.Document::new()");
     for (const [index, field] of type.fields.entries()) {
       const wireName = field.rename ?? field.name;
       const suffix = index === type.fields.length - 1 ? "," : "";
-      lines.push(`    .set(${JSON.stringify(wireName)}, to_bson(self.${field.name}))${suffix}`);
+      lines.push(`    .set(${JSON.stringify(wireName)}, @bson.to_bson(self.${field.name}))${suffix}`);
     }
     lines.push("  )");
     lines.push("}");
     lines.push("");
     lines.push("///|");
     lines.push(`pub impl FromBson for ${type.name} with fn from_bson(value) {`);
-    lines.push("  let document = Document::from_bson(value)");
+    lines.push("  let document = @bson.Document::from_bson(value)");
     lines.push("  {");
     for (const field of type.fields) {
       const wireName = field.rename ?? field.name;
       if (field.optional === true) {
         lines.push(
-          `    ${field.name}: document.get(${JSON.stringify(wireName)}).map(value => from_bson(value)),`,
+          `    ${field.name}: document.get(${JSON.stringify(wireName)}).map(value => @bson.from_bson(value)),`,
         );
       } else {
         lines.push(
-          `    ${field.name}: from_bson(document.require(${JSON.stringify(wireName)})),`,
+          `    ${field.name}: @bson.from_bson(document.require(${JSON.stringify(wireName)})),`,
         );
       }
     }

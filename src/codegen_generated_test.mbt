@@ -4,19 +4,19 @@
 ///|
 pub impl ToBson for CodegenUser with fn to_bson(self) {
   Document(
-    Document::new()
-    .set("name", to_bson(self.name))
-    .set("age_years", to_bson(self.age))
-    .set("created", to_bson(self.created)),
+    @bson.Document::new()
+    .set("name", @bson.to_bson(self.name))
+    .set("age_years", @bson.to_bson(self.age))
+    .set("created", @bson.to_bson(self.created)),
   )
 }
 
 ///|
 pub impl FromBson for CodegenUser with fn from_bson(value) {
-  let document = Document::from_bson(value)
+  let document = @bson.Document::from_bson(value)
   {
-    name: from_bson(document.require("name")),
-    age: from_bson(document.require("age_years")),
-    created: document.get("created").map(value => from_bson(value)),
+    name: @bson.from_bson(document.require("name")),
+    age: @bson.from_bson(document.require("age_years")),
+    created: document.get("created").map(value => @bson.from_bson(value)),
   }
 }

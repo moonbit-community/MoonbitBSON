@@ -26,7 +26,7 @@ pub(all) enum BsonErrorKind {
 /// Structured context attached to every BSON error.
 pub struct BsonErrorInfo {
   kind : BsonErrorKind
-  offset : Int
+  offset : Int32
   path : String
   message : String
 } derive(Eq, Debug)
@@ -43,7 +43,7 @@ pub fn BsonErrorInfo::kind(self : BsonErrorInfo) -> BsonErrorKind {
 }
 
 ///|
-pub fn BsonErrorInfo::offset(self : BsonErrorInfo) -> Int {
+pub fn BsonErrorInfo::offset(self : BsonErrorInfo) -> Int32 {
   self.offset
 }
 
@@ -67,11 +67,11 @@ pub fn BsonError::info(self : BsonError) -> BsonErrorInfo {
 ///|
 fn bson_error(
   kind : BsonErrorKind,
-  offset : Int,
+  offset : Int32,
   path : String,
   message : String,
 ) -> BsonError {
-  Failure({ kind, offset, path, message })
+  Failure({ kind, offset, path, message, })
 }
 
 ///|
@@ -80,6 +80,6 @@ fn field_path(parent : String, key : String) -> String {
 }
 
 ///|
-fn index_path(parent : String, index : Int) -> String {
+fn index_path(parent : String, index : Int32) -> String {
   parent + "[" + index.to_string() + "]"
 }

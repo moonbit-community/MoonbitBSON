@@ -13,7 +13,7 @@ pub fn Document::to_extended_json(self : Document) -> Json raise BsonError {
 ///|
 pub fn Document::to_extended_json_string(
   self : Document,
-  indent? : Int,
+  indent? : Int32,
 ) -> String raise BsonError {
   self.to_extended_json().stringify(indent?)
 }
@@ -29,7 +29,7 @@ pub fn Document::to_relaxed_extended_json(
 ///|
 pub fn Document::to_relaxed_extended_json_string(
   self : Document,
-  indent? : Int,
+  indent? : Int32,
 ) -> String raise BsonError {
   self.to_relaxed_extended_json().stringify(indent?)
 }
@@ -505,7 +505,7 @@ fn number_from_extended_json(
 
 ///|
 fn parse_relaxed_integer(value : String) -> Int64? {
-  try @strconv.from_str(value) catch {
+  try @string.parse_int64(value) catch {
     _ => None
   } noraise {
     integer => Some(integer)
@@ -546,15 +546,15 @@ fn contains_extended_json_wrapper_key(values : Map[String, Json]) -> Bool {
 }
 
 ///|
-fn parse_int(value : String, path : String) -> Int raise BsonError {
-  @strconv.from_str(value) catch {
+fn parse_int(value : String, path : String) -> Int32 raise BsonError {
+  @string.parse_int(value) catch {
     _ => invalid_extended(path, "invalid $numberInt")
   }
 }
 
 ///|
 fn parse_int64(value : String, path : String) -> Int64 raise BsonError {
-  @strconv.from_str(value) catch {
+  @string.parse_int64(value) catch {
     _ => invalid_extended(path, "invalid $numberLong")
   }
 }
@@ -566,7 +566,7 @@ fn parse_double(value : String, path : String) -> Double raise BsonError {
     "Infinity" => @double.infinity
     "-Infinity" => @double.neg_infinity
     _ =>
-      @strconv.from_str(value) catch {
+      @string.parse_double(value) catch {
         _ => invalid_extended(path, "invalid $numberDouble")
       }
   }
@@ -593,7 +593,7 @@ fn parse_hex_byte(value : String, path : String) -> Byte raise BsonError {
 }
 
 ///|
-fn timestamp_component(value : Double, path : String) -> UInt raise BsonError {
+fn timestamp_component(value : Double, path : String) -> UInt32 raise BsonError {
   if value.is_nan() ||
     value.is_inf() ||
     value < 0.0 ||
@@ -603,7 +603,7 @@ fn timestamp_component(value : Double, path : String) -> UInt raise BsonError {
       path, "$timestamp components must be unsigned 32-bit integers",
     )
   }
-  UInt::trunc_double(value)
+  UInt32::trunc_double(value)
 }
 
 ///|

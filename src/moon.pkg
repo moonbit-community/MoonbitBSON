@@ -1,16 +1,12 @@
 import {
-  "moonbitlang/core/bigint",
-  "moonbitlang/core/bench",
+  "moonbitlang/core/debug",
   "moonbitlang/core/buffer",
   "moonbitlang/core/double",
   "moonbitlang/core/encoding/base64",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
-  "moonbitlang/core/random",
-  "moonbitlang/core/ref",
-  "moonbitlang/core/quickcheck",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }
 
 options(
@@ -22,3 +18,9 @@ options(
     "object_id_entropy_portable.mbt": [ "wasm", "wasm-gc" ],
   },
 )
+
+import {
+  "moonbitlang/core/bench",
+  "moonbitlang/core/quickcheck",
+  "moonbitlang/core/random",
+} for "test"

@@ -1,5 +1,5 @@
 ///|
-fn object_id_secure_random(count : Int) -> Bytes raise BsonError {
+fn object_id_secure_random(count : Int32) -> Bytes raise BsonError {
   match secure_entropy_from_provider(count) {
     Some(bytes) => return bytes
     None => ()
