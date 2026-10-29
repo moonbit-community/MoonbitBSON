@@ -12,11 +12,11 @@ fn decimal_hex(bytes : Bytes) -> String {
 }
 
 ///|
-fn decimal_hex_nibble(value : UInt16) -> Int? {
+fn decimal_hex_nibble(value : UInt16) -> Int32? {
   match value {
-    '0'..='9' => Some(value.to_int() - 48)
-    'a'..='f' => Some(value.to_int() - 87)
-    'A'..='F' => Some(value.to_int() - 55)
+    '0'..<='9' => Some(value.to_int() - 48)
+    'a'..<='f' => Some(value.to_int() - 87)
+    'A'..<='F' => Some(value.to_int() - 55)
     _ => None
   }
 }

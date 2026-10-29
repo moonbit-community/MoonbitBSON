@@ -4,8 +4,8 @@ pub struct RawElement {
   document : RawDocument
   key : String
   type_code : Byte
-  value_start : Int
-  value_end : Int
+  value_start : Int32
+  value_end : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -60,7 +60,7 @@ pub fn RawDocument::get_element(
 fn raw_scan_document(
   document : RawDocument,
   bytes : Bytes,
-  start : Int,
+  start : Int32,
   path : String,
 ) -> Array[RawElement] raise BsonError {
   let length = raw_i32(bytes, start, path)
@@ -104,7 +104,7 @@ fn raw_scan_document(
         "invalid raw element length",
       )
     }
-    elements.push({ document, key, type_code, value_start, value_end })
+    elements.push({ document, key, type_code, value_start, value_end, })
     position = value_end
   }
   elements
@@ -114,10 +114,10 @@ fn raw_scan_document(
 fn raw_skip_value(
   bytes : Bytes,
   type_code : Byte,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   match type_code {
     0x01 => raw_require(start + 8, limit, path)
     0x02 | 0x0D | 0x0E => raw_skip_string(bytes, start, limit, path)
@@ -165,10 +165,10 @@ fn raw_skip_value(
 ///|
 fn raw_skip_container(
   bytes : Bytes,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let length = raw_i32(bytes, start, path)
   if length < 5 || start + length > limit {
     raise bson_error(
@@ -201,10 +201,10 @@ fn raw_skip_container(
 ///|
 fn raw_skip_string(
   bytes : Bytes,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let length = raw_i32(bytes, start, path)
   if length < 1 || start + 4 + length > limit {
     raise bson_error(InvalidLength, start, path, "invalid raw string length")
@@ -223,10 +223,10 @@ fn raw_skip_string(
 ///|
 fn raw_skip_binary(
   bytes : Bytes,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let length = raw_i32(bytes, start, path)
   if length < 0 || start + 5 + length > limit {
     raise bson_error(InvalidBinary, start, path, "invalid raw binary length")
@@ -248,10 +248,10 @@ fn raw_skip_binary(
 ///|
 fn raw_cstring_end(
   bytes : Bytes,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let mut position = start
   while position < limit {
     if bytes[position] == 0 {
@@ -263,7 +263,11 @@ fn raw_cstring_end(
 }
 
 ///|
-fn raw_require(end : Int, limit : Int, path : String) -> Int raise BsonError {
+fn raw_require(
+  end : Int32,
+  limit : Int32,
+  path : String,
+) -> Int32 raise BsonError {
   if end > limit {
     raise bson_error(
       UnexpectedEnd,
@@ -276,11 +280,15 @@ fn raw_require(end : Int, limit : Int, path : String) -> Int raise BsonError {
 }
 
 ///|
-fn raw_i32(bytes : Bytes, start : Int, path : String) -> Int raise BsonError {
+fn raw_i32(
+  bytes : Bytes,
+  start : Int32,
+  path : String,
+) -> Int32 raise BsonError {
   if start < 0 || start + 4 > bytes.length() {
     raise bson_error(UnexpectedEnd, start, path, "raw integer exceeds input")
   }
-  let value : UInt = bytes[start].to_uint() |
+  let value : UInt32 = bytes[start].to_uint() |
     (bytes[start + 1].to_uint() << 8) |
     (bytes[start + 2].to_uint() << 16) |
     (bytes[start + 3].to_uint() << 24)

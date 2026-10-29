@@ -4,19 +4,19 @@
 ///|
 pub impl ToBson for DerivedAccount with fn to_bson(self) {
   Document(
-    Document::new()
-    .set("display_name", to_bson(self.name))
-    .set("active", to_bson(self.active))
-    .set("last_seen", to_bson(self.last_seen)),
+    @bson.Document::new()
+    .set("display_name", @bson.to_bson(self.name))
+    .set("active", @bson.to_bson(self.active))
+    .set("last_seen", @bson.to_bson(self.last_seen)),
   )
 }
 
 ///|
 pub impl FromBson for DerivedAccount with fn from_bson(value) {
-  let document = Document::from_bson(value)
+  let document = @bson.Document::from_bson(value)
   {
-    name: from_bson(document.require("display_name")),
-    active: from_bson(document.require("active")),
-    last_seen: document.get("last_seen").map(value => from_bson(value)),
+    name: @bson.from_bson(document.require("display_name")),
+    active: @bson.from_bson(document.require("active")),
+    last_seen: document.get("last_seen").map(value => @bson.from_bson(value)),
   }
 }

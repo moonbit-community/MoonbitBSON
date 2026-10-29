@@ -47,7 +47,7 @@ pub fn encode_to_with_options(
 fn encode_document(
   document : Document,
   options : EncodeOptions,
-  depth : Int,
+  depth : Int32,
   path : String,
 ) -> Bytes raise BsonError {
   if depth > options.max_depth {
@@ -83,7 +83,7 @@ fn write_element(
   writer : @buffer.Buffer,
   value : Bson,
   options : EncodeOptions,
-  depth : Int,
+  depth : Int32,
   path : String,
 ) -> Byte raise BsonError {
   match value {
@@ -168,7 +168,7 @@ fn write_element(
 fn encode_array(
   values : Array[Bson],
   options : EncodeOptions,
-  depth : Int,
+  depth : Int32,
   path : String,
 ) -> Bytes raise BsonError {
   if depth > options.max_depth {
@@ -240,7 +240,7 @@ fn write_javascript_with_scope(
   writer : @buffer.Buffer,
   value : JavaScriptWithScope,
   options : EncodeOptions,
-  depth : Int,
+  depth : Int32,
   path : String,
 ) -> Unit raise BsonError {
   let scoped = @buffer.Buffer(size_hint=64)

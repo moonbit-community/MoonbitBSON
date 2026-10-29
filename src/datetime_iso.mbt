@@ -70,7 +70,7 @@ fn parse_rfc3339_millis(value : String, path : String) -> Int64 raise BsonError 
   if index < value.length() && value[index] == '.' {
     index += 1
     let fraction_start = index
-    while index < value.length() && value[index] is ('0'..='9') {
+    while index < value.length() && value[index] is ('0'..<='9') {
       index += 1
     }
     let fraction_length = index - fraction_start
@@ -116,17 +116,17 @@ fn parse_rfc3339_millis(value : String, path : String) -> Int64 raise BsonError 
 ///|
 fn parse_datetime_digits(
   value : String,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   if start < 0 || length < 1 || start + length > value.length() {
     return invalid_datetime(path, "incomplete RFC 3339 numeric component")
   }
   let mut result = 0
   for index = start; index < start + length; index = index + 1 {
     let code = value[index]
-    if !(code is ('0'..='9')) {
+    if !(code is ('0'..<='9')) {
       return invalid_datetime(path, "non-digit in RFC 3339 numeric component")
     }
     result = result * 10 + code.to_int() - '0'.to_int()
@@ -135,7 +135,7 @@ fn parse_datetime_digits(
 }
 
 ///|
-fn civil_from_days(epoch_days : Int) -> (Int, Int, Int) {
+fn civil_from_days(epoch_days : Int32) -> (Int32, Int32, Int32) {
   let days = epoch_days + 719468
   let era = if days >= 0 { days / 146097 } else { (days - 146096) / 146097 }
   let day_of_era = days - era * 146097
@@ -156,7 +156,7 @@ fn civil_from_days(epoch_days : Int) -> (Int, Int, Int) {
 }
 
 ///|
-fn days_from_civil(input_year : Int, month : Int, day : Int) -> Int {
+fn days_from_civil(input_year : Int32, month : Int32, day : Int32) -> Int32 {
   let year = input_year - (if month <= 2 { 1 } else { 0 })
   let era = if year >= 0 { year / 400 } else { (year - 399) / 400 }
   let year_of_era = year - era * 400
@@ -170,7 +170,7 @@ fn days_from_civil(input_year : Int, month : Int, day : Int) -> Int {
 }
 
 ///|
-fn days_in_month(year : Int, month : Int) -> Int {
+fn days_in_month(year : Int32, month : Int32) -> Int32 {
   match month {
     2 => if is_leap_year(year) { 29 } else { 28 }
     4 | 6 | 9 | 11 => 30
@@ -179,12 +179,12 @@ fn days_in_month(year : Int, month : Int) -> Int {
 }
 
 ///|
-fn is_leap_year(year : Int) -> Bool {
+fn is_leap_year(year : Int32) -> Bool {
   year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
 }
 
 ///|
-fn pad_decimal(value : Int, width : Int) -> String {
+fn pad_decimal(value : Int32, width : Int32) -> String {
   let text = value.to_string()
   if text.length() >= width {
     text

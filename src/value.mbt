@@ -28,7 +28,7 @@ pub fn BinarySubtype::from_byte(value : Byte) -> BinarySubtype {
     0x07 => Column
     0x08 => Sensitive
     0x09 => Vector
-    0x80..=0xFF => UserDefined(value)
+    0x80..<=0xFF => UserDefined(value)
     _ => Reserved(value)
   }
 }
@@ -58,7 +58,7 @@ pub struct Binary {
 
 ///|
 pub fn Binary::new(subtype : BinarySubtype, bytes : Bytes) -> Binary {
-  { subtype, bytes }
+  { subtype, bytes, }
 }
 
 ///|
@@ -138,11 +138,11 @@ pub fn ObjectId::from_hex(value : String) -> ObjectId raise BsonError {
 }
 
 ///|
-fn hex_nibble(value : UInt16) -> Int? {
+fn hex_nibble(value : UInt16) -> Int32? {
   match value {
-    '0'..='9' => Some(value.to_int() - 48)
-    'a'..='f' => Some(value.to_int() - 87)
-    'A'..='F' => Some(value.to_int() - 55)
+    '0'..<='9' => Some(value.to_int() - 48)
+    'a'..<='f' => Some(value.to_int() - 87)
+    'A'..<='F' => Some(value.to_int() - 55)
     _ => None
   }
 }
@@ -155,7 +155,7 @@ pub struct Regex {
 
 ///|
 pub fn Regex::new(pattern : String, options : String) -> Regex {
-  { pattern, options }
+  { pattern, options, }
 }
 
 ///|
@@ -171,22 +171,22 @@ pub fn Regex::options(self : Regex) -> String {
 ///|
 /// BSON timestamps store an increment followed by seconds since the epoch.
 pub struct Timestamp {
-  time : UInt
-  increment : UInt
+  time : UInt32
+  increment : UInt32
 } derive(Eq, Debug)
 
 ///|
-pub fn Timestamp::new(time : UInt, increment : UInt) -> Timestamp {
-  { time, increment }
+pub fn Timestamp::new(time : UInt32, increment : UInt32) -> Timestamp {
+  { time, increment, }
 }
 
 ///|
-pub fn Timestamp::time(self : Timestamp) -> UInt {
+pub fn Timestamp::time(self : Timestamp) -> UInt32 {
   self.time
 }
 
 ///|
-pub fn Timestamp::increment(self : Timestamp) -> UInt {
+pub fn Timestamp::increment(self : Timestamp) -> UInt32 {
   self.increment
 }
 
@@ -239,7 +239,7 @@ pub struct DbPointer {
 
 ///|
 pub fn DbPointer::new(collection : String, id : ObjectId) -> DbPointer {
-  { collection, id }
+  { collection, id, }
 }
 
 ///|
@@ -263,7 +263,7 @@ pub fn JavaScriptWithScope::new(
   code : String,
   scope : Document,
 ) -> JavaScriptWithScope {
-  { code, scope }
+  { code, scope, }
 }
 
 ///|
@@ -284,12 +284,12 @@ pub struct Document {
 
 ///|
 pub fn Document::new() -> Document {
-  { values: Map([], capacity=8) }
+  { values: Map([], capacity=8), }
 }
 
 ///|
 pub fn Document::from_array(values : Array[(String, Bson)]) -> Document {
-  { values: Map(values) }
+  { values: Map(values), }
 }
 
 ///|
@@ -314,7 +314,7 @@ pub fn Document::contains(self : Document, key : String) -> Bool {
 }
 
 ///|
-pub fn Document::length(self : Document) -> Int {
+pub fn Document::length(self : Document) -> Int32 {
   self.values.length()
 }
 
@@ -372,7 +372,7 @@ pub fn Document::get_array(self : Document, key : String) -> Array[Bson]? {
 }
 
 ///|
-pub fn Document::get_int32(self : Document, key : String) -> Int? {
+pub fn Document::get_int32(self : Document, key : String) -> Int32? {
   match self.get(key) {
     Some(value) => value.as_int32()
     None => None
@@ -440,7 +440,7 @@ pub fn Document::require_array(
 pub fn Document::require_int32(
   self : Document,
   key : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   match self.get_int32(key) {
     Some(value) => value
     None => raise_type_mismatch(key, "int32")
@@ -508,7 +508,7 @@ pub(all) enum Bson {
   JavaScript(String)
   Symbol(String)
   JavaScriptWithScope(JavaScriptWithScope)
-  Int32(Int)
+  Int32(Int32)
   Timestamp(Timestamp)
   Int64(Int64)
   Decimal128(Decimal128)
@@ -541,7 +541,7 @@ pub fn Bson::as_array(self : Bson) -> Array[Bson]? {
 }
 
 ///|
-pub fn Bson::as_int32(self : Bson) -> Int? {
+pub fn Bson::as_int32(self : Bson) -> Int32? {
   match self {
     Int32(value) => Some(value)
     _ => None

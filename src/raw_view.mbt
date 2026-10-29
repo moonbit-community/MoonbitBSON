@@ -28,9 +28,9 @@ pub fn RawDocumentView::from_bytes(
 /// Create a borrowed view over the first BSON frame in `bytes`.
 pub fn RawDocumentView::from_prefix(
   bytes : BytesView,
-) -> (RawDocumentView, Int) raise BsonError {
+) -> (RawDocumentView, Int32) raise BsonError {
   let end = raw_view_document_end(bytes, 0, "$")
-  ({ bytes: bytes[0:end] }, end)
+  ({ bytes: bytes[0:end], }, end)
 }
 
 ///|
@@ -39,25 +39,25 @@ pub fn RawDocumentView::bytes(self : RawDocumentView) -> BytesView {
 }
 
 ///|
-pub fn RawDocumentView::length(self : RawDocumentView) -> Int {
+pub fn RawDocumentView::length(self : RawDocumentView) -> Int32 {
   self.bytes.length()
 }
 
 ///|
 /// Return an iterator that keeps element keys and values as byte views.
 pub fn RawDocumentView::iter(self : RawDocumentView) -> RawElementViewIter {
-  { document: self, position: 4, end: self.bytes.length() - 1 }
+  { document: self, position: 4, end: self.bytes.length() - 1, }
 }
 
 ///|
 /// A single borrowed BSON element. `key()` allocates a String; `key_bytes()` does not.
 pub struct RawElementView {
   document : RawDocumentView
-  key_start : Int
-  key_end : Int
+  key_start : Int32
+  key_end : Int32
   type_code : Byte
-  value_start : Int
-  value_end : Int
+  value_start : Int32
+  value_end : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -154,7 +154,9 @@ pub fn RawElementView::as_binary_bytes(
 }
 
 ///|
-pub fn RawElementView::as_int32(self : RawElementView) -> Int? raise BsonError {
+pub fn RawElementView::as_int32(
+  self : RawElementView,
+) -> Int32? raise BsonError {
   if self.type_code == 0x10 {
     Some(raw_view_i32(self.document.bytes, self.value_start, "$.int32"))
   } else {
@@ -239,8 +241,8 @@ pub fn RawElementView::to_bson(self : RawElementView) -> Bson raise BsonError {
 /// A stateful iterator over borrowed top-level elements.
 pub struct RawElementViewIter {
   document : RawDocumentView
-  mut position : Int
-  end : Int
+  mut position : Int32
+  end : Int32
 }
 
 ///|
@@ -291,9 +293,9 @@ pub fn RawElementViewIter::next(
 ///|
 fn raw_view_document_end(
   bytes : BytesView,
-  start : Int,
+  start : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   if start < 0 || start + 4 > bytes.length() {
     raise bson_error(UnexpectedEnd, start, path, "raw document is too short")
   }
@@ -317,10 +319,10 @@ fn raw_view_document_end(
 fn raw_view_skip_value(
   bytes : BytesView,
   type_code : Byte,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   match type_code {
     0x01 => raw_view_require(start + 8, limit, path)
     0x02 | 0x0D | 0x0E => raw_view_skip_string(bytes, start, limit, path)
@@ -371,10 +373,10 @@ fn raw_view_skip_value(
 ///|
 fn raw_view_skip_container(
   bytes : BytesView,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let end = raw_view_document_end(bytes, start, path)
   if end > limit {
     raise bson_error(
@@ -398,10 +400,10 @@ fn raw_view_skip_container(
 ///|
 fn raw_view_skip_string(
   bytes : BytesView,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let length = raw_view_i32(bytes, start, path)
   if length < 1 || start + 4 + length > limit {
     raise bson_error(InvalidLength, start, path, "invalid raw string length")
@@ -421,10 +423,10 @@ fn raw_view_skip_string(
 ///|
 fn raw_view_skip_binary(
   bytes : BytesView,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let length = raw_view_i32(bytes, start, path)
   if length < 0 || start + 5 + length > limit {
     raise bson_error(InvalidBinary, start, path, "invalid raw binary length")
@@ -446,10 +448,10 @@ fn raw_view_skip_binary(
 ///|
 fn raw_view_cstring_end(
   bytes : BytesView,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   let mut position = start
   while position < limit {
     if bytes[position] == 0 {
@@ -462,10 +464,10 @@ fn raw_view_cstring_end(
 
 ///|
 fn raw_view_require(
-  end : Int,
-  limit : Int,
+  end : Int32,
+  limit : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   if end > limit {
     raise bson_error(
       UnexpectedEnd,
@@ -480,13 +482,13 @@ fn raw_view_require(
 ///|
 fn raw_view_i32(
   bytes : BytesView,
-  start : Int,
+  start : Int32,
   path : String,
-) -> Int raise BsonError {
+) -> Int32 raise BsonError {
   if start < 0 || start + 4 > bytes.length() {
     raise bson_error(UnexpectedEnd, start, path, "raw integer exceeds input")
   }
-  let value : UInt = bytes[start].to_uint() |
+  let value : UInt32 = bytes[start].to_uint() |
     (bytes[start + 1].to_uint() << 8) |
     (bytes[start + 2].to_uint() << 16) |
     (bytes[start + 3].to_uint() << 24)
@@ -496,7 +498,7 @@ fn raw_view_i32(
 ///|
 fn raw_view_i64(
   bytes : BytesView,
-  start : Int,
+  start : Int32,
   path : String,
 ) -> Int64 raise BsonError {
   if start < 0 || start + 8 > bytes.length() {

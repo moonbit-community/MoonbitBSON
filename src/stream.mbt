@@ -6,7 +6,7 @@ pub struct BsonStreamDecoder {
 
 ///|
 pub fn BsonStreamDecoder::new() -> BsonStreamDecoder {
-  { pending: b"" }
+  { pending: b"", }
 }
 
 ///|
@@ -60,15 +60,15 @@ pub fn BsonStreamDecoder::finish(
 /// `push` calls.
 pub struct BsonStreamRawDecoder {
   mut pending : Bytes
-  max_size : Int
+  max_size : Int32
 } derive(Debug)
 
 ///|
 /// Create a raw decoder with a per-frame size limit (16 MiB by default).
 pub fn BsonStreamRawDecoder::new(
-  max_size? : Int = 16 * 1024 * 1024,
+  max_size~ : Int32 = 16 * 1024 * 1024,
 ) -> BsonStreamRawDecoder {
-  { pending: b"", max_size }
+  { pending: b"", max_size, }
 }
 
 ///|
@@ -113,9 +113,9 @@ pub fn BsonStreamRawDecoder::finish(
 ///|
 fn bson_stream_frame_length(
   buffer : BytesView,
-  position : Int,
-  max_size : Int,
-) -> Int? raise BsonError {
+  position : Int32,
+  max_size : Int32,
+) -> Int32? raise BsonError {
   let remaining = buffer.length() - position
   if remaining < 4 {
     return None
@@ -145,7 +145,7 @@ fn bson_stream_frame_length(
 }
 
 ///|
-fn bson_stream_pending(buffer : Bytes, position : Int) -> Bytes {
+fn bson_stream_pending(buffer : Bytes, position : Int32) -> Bytes {
   if position == 0 {
     buffer
   } else {
@@ -162,8 +162,8 @@ pub struct BsonStreamEncoder {
 }
 
 ///|
-pub fn BsonStreamEncoder::new(size_hint? : Int = 256) -> BsonStreamEncoder {
-  { buffer: Buffer(size_hint~) }
+pub fn BsonStreamEncoder::new(size_hint~ : Int32 = 256) -> BsonStreamEncoder {
+  { buffer: Buffer(size_hint~), }
 }
 
 ///|

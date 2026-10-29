@@ -1,9 +1,9 @@
 ///|
 #borrow(buffer)
-extern "c" fn object_id_secure_random_ffi(buffer : Bytes) -> Int = "moonbit_bson_secure_random"
+extern "c" fn object_id_secure_random_ffi(buffer : Bytes) -> Int32 = "moonbit_bson_secure_random"
 
 ///|
-fn object_id_secure_random(count : Int) -> Bytes raise BsonError {
+fn object_id_secure_random(count : Int32) -> Bytes raise BsonError {
   match secure_entropy_from_provider(count) {
     Some(bytes) => return bytes
     None => ()

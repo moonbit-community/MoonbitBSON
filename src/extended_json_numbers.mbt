@@ -1,7 +1,7 @@
 ///|
 priv struct JsonNumberCursor {
   values : Array[String]
-  mut index : Int
+  mut index : Int32
 }
 
 ///|
@@ -62,7 +62,7 @@ fn collect_json_number_reprs(source : String) -> Array[String] {
     } else if code == '"' {
       in_string = true
       index += 1
-    } else if code == '-' || code is ('0'..='9') {
+    } else if code == '-' || code is ('0'..<='9') {
       let start = index
       index += 1
       while index < source.length() && is_json_number_code(source[index]) {
@@ -78,5 +78,5 @@ fn collect_json_number_reprs(source : String) -> Array[String] {
 
 ///|
 fn is_json_number_code(code : UInt16) -> Bool {
-  code is ('0'..='9' | '.' | 'e' | 'E' | '+' | '-')
+  code is ('0'..<='9' | '.' | 'e' | 'E' | '+' | '-')
 }

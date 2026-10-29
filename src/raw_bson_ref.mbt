@@ -135,7 +135,7 @@ pub(all) enum RawBsonRef {
   JavaScript(RawStringRef)
   Symbol(RawStringRef)
   JavaScriptWithScope(RawJavaScriptWithScopeRef)
-  Int32(Int)
+  Int32(Int32)
   Timestamp(Timestamp)
   Int64(Int64)
   Decimal128(BytesView)
@@ -153,7 +153,7 @@ pub struct RawArrayView {
 pub fn RawArrayView::from_bytes(
   bytes : BytesView,
 ) -> RawArrayView raise BsonError {
-  { document: RawDocumentView::from_bytes(bytes) }
+  { document: RawDocumentView::from_bytes(bytes), }
 }
 
 ///|
@@ -169,7 +169,7 @@ pub fn RawArrayView::iter(self : RawArrayView) -> RawElementViewIter {
 ///|
 pub fn RawArrayView::get(
   self : RawArrayView,
-  index : Int,
+  index : Int32,
 ) -> RawBsonRef? raise BsonError {
   let expected = index.to_string()
   let iterator = self.iter()
@@ -223,9 +223,9 @@ pub fn RawElementView::value(
             "invalid raw old binary length",
           )
         }
-        Binary({ subtype, bytes: bytes[payload + 4:payload + length] })
+        Binary({ subtype, bytes: bytes[payload + 4:payload + length], })
       } else {
-        Binary({ subtype, bytes: bytes[payload:payload + length] })
+        Binary({ subtype, bytes: bytes[payload:payload + length], })
       }
     }
     0x06 => Undefined
@@ -379,8 +379,8 @@ pub fn RawBsonRef::to_bson(self : RawBsonRef) -> Bson raise BsonError {
 ///|
 fn raw_view_string_payload(
   bytes : BytesView,
-  start : Int,
-  limit : Int,
+  start : Int32,
+  limit : Int32,
   path : String,
 ) -> BytesView raise BsonError {
   let length = raw_view_i32(bytes, start, path)

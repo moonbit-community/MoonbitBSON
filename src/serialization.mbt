@@ -83,12 +83,12 @@ pub impl FromBson for Bool with fn from_bson(value) {
 }
 
 ///|
-pub impl ToBson for Int with fn to_bson(self) {
+pub impl ToBson for Int32 with fn to_bson(self) {
   Int32(self)
 }
 
 ///|
-pub impl FromBson for Int with fn from_bson(value) {
+pub impl FromBson for Int32 with fn from_bson(value) {
   match value {
     Int32(value) => value
     value => serialization_type_error("int32", value)

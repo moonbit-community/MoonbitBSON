@@ -1,6 +1,6 @@
 ///|
-fn decoding_error(data : Bytes) -> BsonErrorInfo? {
-  try decode(data) catch {
+fn decoding_error(data : Bytes) -> @bson.BsonErrorInfo? {
+  try @bson.decode(data) catch {
     Failure(info) => Some(info)
   } noraise {
     _ => None
@@ -8,8 +8,8 @@ fn decoding_error(data : Bytes) -> BsonErrorInfo? {
 }
 
 ///|
-fn encoding_error(document : Document) -> BsonErrorInfo? {
-  try encode(document) catch {
+fn encoding_error(document : @bson.Document) -> @bson.BsonErrorInfo? {
+  try @bson.encode(document) catch {
     Failure(info) => Some(info)
   } noraise {
     _ => None
@@ -17,8 +17,11 @@ fn encoding_error(document : Document) -> BsonErrorInfo? {
 }
 
 ///|
-fn limited_encoding_fails(document : Document, options : EncodeOptions) -> Bool {
-  try encode_with_options(document, options) catch {
+fn limited_encoding_fails(
+  document : @bson.Document,
+  options : @bson.EncodeOptions,
+) -> Bool {
+  try @bson.encode_with_options(document, options) catch {
     _ => true
   } noraise {
     _ => false
@@ -26,8 +29,8 @@ fn limited_encoding_fails(document : Document, options : EncodeOptions) -> Bool 
 }
 
 ///|
-fn limited_decoding_fails(data : Bytes, options : DecodeOptions) -> Bool {
-  try decode_with_options(data, options) catch {
+fn limited_decoding_fails(data : Bytes, options : @bson.DecodeOptions) -> Bool {
+  try @bson.decode_with_options(data, options) catch {
     _ => true
   } noraise {
     _ => false
@@ -36,7 +39,7 @@ fn limited_decoding_fails(data : Bytes, options : DecodeOptions) -> Bool {
 
 ///|
 fn invalid_object_id_fails() -> Bool {
-  try ObjectId::from_bytes(b"short") catch {
+  try @bson.ObjectId::from_bytes(b"short") catch {
     _ => true
   } noraise {
     _ => false
@@ -45,7 +48,7 @@ fn invalid_object_id_fails() -> Bool {
 
 ///|
 fn invalid_decimal_fails() -> Bool {
-  try Decimal128::from_bytes(b"short") catch {
+  try @bson.Decimal128::from_bytes(b"short") catch {
     _ => true
   } noraise {
     _ => false
@@ -55,72 +58,74 @@ fn invalid_decimal_fails() -> Bool {
 ///|
 test "known BSON string fixture" {
   let expected = b"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00"
-  let document = Document::new().set("hello", String("world"))
-  assert_eq(encode(document), expected)
-  assert_eq(decode(expected), document)
+  let document = @bson.Document::new().set("hello", String("world"))
+  assert_eq(@bson.encode(document), expected)
+  assert_eq(@bson.decode(expected), document)
 }
 
 ///|
 test "known BSON double fixture" {
   let expected = b"\x10\x00\x00\x00\x01x\x00\x00\x00\x00\x00\x00\x00\xf8\x3f\x00"
-  let document = Document::new().set("x", Double(1.5))
-  assert_eq(encode(document), expected)
-  assert_eq(decode(expected), document)
+  let document = @bson.Document::new().set("x", Double(1.5))
+  assert_eq(@bson.encode(document), expected)
+  assert_eq(@bson.decode(expected), document)
 }
 
 ///|
 test "complete value model roundtrip" {
-  let object_id = ObjectId::from_bytes(
+  let object_id = @bson.ObjectId::from_bytes(
     b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b",
   )
-  let decimal = Decimal128::from_bytes(
+  let decimal = @bson.Decimal128::from_bytes(
     b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
   )
-  let scope = Document::new().set("answer", Int32(42))
-  let values : Array[(String, Bson)] = [
+  let scope = @bson.Document::new().set("answer", Int32(42))
+  let values : Array[(String, @bson.Bson)] = [
     ("double", Double(1.25)),
     ("string", String("MoonBit 月兔")),
-    ("document", Document(Document::new().set("x", Int32(1)))),
+    ("document", Document(@bson.Document::new().set("x", Int32(1)))),
     ("array", Array([String("a"), Int64(9223372036854775807L)])),
-    ("binary", Binary(Binary::new(Generic, b"abc"))),
-    ("binary-old", Binary(Binary::new(BinaryOld, b"old"))),
+    ("binary", Binary(@bson.Binary::new(Generic, b"abc"))),
+    ("binary-old", Binary(@bson.Binary::new(BinaryOld, b"old"))),
     ("undefined", Undefined),
     ("object-id", ObjectId(object_id)),
     ("false", Boolean(false)),
     ("true", Boolean(true)),
-    ("datetime", DateTime(DateTime::from_millis(-123456789L))),
+    ("datetime", DateTime(@bson.DateTime::from_millis(-123456789L))),
     ("null", Null),
-    ("regex", Regex(Regex::new("a.*b", "im"))),
-    ("db-pointer", DbPointer(DbPointer::new("db.collection", object_id))),
+    ("regex", Regex(@bson.Regex::new("a.*b", "im"))),
+    ("db-pointer", DbPointer(@bson.DbPointer::new("db.collection", object_id))),
     ("javascript", JavaScript("return 1")),
     ("symbol", Symbol("legacy")),
     (
       "javascript-scope",
-      JavaScriptWithScope(JavaScriptWithScope::new("return answer", scope)),
+      JavaScriptWithScope(
+        @bson.JavaScriptWithScope::new("return answer", scope),
+      ),
     ),
     ("int32", Int32(-2147483648)),
-    ("timestamp", Timestamp(Timestamp::new(0xFFFFFFFFU, 0x80000000U))),
+    ("timestamp", Timestamp(@bson.Timestamp::new(0xFFFFFFFFU, 0x80000000U))),
     ("int64", Int64(-9223372036854775807L - 1L)),
     ("decimal128", Decimal128(decimal)),
     ("min-key", MinKey),
     ("max-key", MaxKey),
   ]
-  let document = Document::from_array(values)
-  assert_eq(decode(encode(document)), document)
+  let document = @bson.Document::from_array(values)
+  assert_eq(@bson.decode(@bson.encode(document)), document)
 }
 
 ///|
 test "decode_prefix reports consumed bytes" {
-  let encoded = encode(Document::new().set("x", Int32(1)))
+  let encoded = @bson.encode(@bson.Document::new().set("x", Int32(1)))
   let combined = encoded + b"tail"
-  let (document, consumed) = decode_prefix(combined[:])
+  let (document, consumed) = @bson.decode_prefix(combined[:])
   assert_eq(consumed, encoded.length())
   assert_eq(document.get_int32("x"), Some(1))
 }
 
 ///|
 test "exact decode rejects trailing bytes" {
-  let encoded = encode(Document::new()) + b"tail"
+  let encoded = @bson.encode(@bson.Document::new()) + b"tail"
   let error = decoding_error(encoded).unwrap()
   assert_eq(error.kind(), TrailingData)
   assert_eq(error.offset(), 5)
@@ -149,19 +154,19 @@ test "boolean byte must be zero or one" {
 ///|
 test "degenerate array keys normalize by default" {
   let data = b"\x14\x00\x00\x00\x04a\x00\x0c\x00\x00\x00\x10x\x00\x01\x00\x00\x00\x00\x00"
-  let document = decode(data)
+  let document = @bson.decode(data)
   assert_eq(document.get_array("a"), Some([Int32(1)]))
   let canonical = b"\x14\x00\x00\x00\x04a\x00\x0c\x00\x00\x00\x10\x30\x00\x01\x00\x00\x00\x00\x00"
-  assert_eq(encode(document), canonical)
+  assert_eq(@bson.encode(document), canonical)
 }
 
 ///|
 test "strict array mode rejects noncanonical keys" {
   let data = b"\x14\x00\x00\x00\x04a\x00\x0c\x00\x00\x00\x10x\x00\x01\x00\x00\x00\x00\x00"
   let result = try
-    decode_with_options(
+    @bson.decode_with_options(
       data,
-      DecodeOptions::new(require_canonical_array_keys=true),
+      @bson.DecodeOptions::new(require_canonical_array_keys=true),
     )
   catch {
     Failure(info) => Some(info)
@@ -181,31 +186,40 @@ test "invalid UTF-8 is rejected" {
 
 ///|
 test "field names containing NUL are rejected" {
-  let document = Document::new().set("bad\u0000key", Int32(1))
+  let document = @bson.Document::new().set("bad\u0000key", Int32(1))
   assert_eq(encoding_error(document).unwrap().kind(), InvalidCString)
 }
 
 ///|
 test "regex options must be canonical" {
-  let document = Document::new().set("r", Regex(Regex::new("x", "mi")))
+  let document = @bson.Document::new().set(
+    "r",
+    Regex(@bson.Regex::new("x", "mi")),
+  )
   assert_eq(encoding_error(document).unwrap().kind(), InvalidRegex)
 }
 
 ///|
 test "depth limits apply to encoding and decoding" {
-  let nested = Document::new().set(
+  let nested = @bson.Document::new().set(
     "outer",
-    Document(Document::new().set("inner", Document(Document::new()))),
+    Document(
+      @bson.Document::new().set("inner", Document(@bson.Document::new())),
+    ),
   )
-  assert_true(limited_encoding_fails(nested, EncodeOptions::new(max_depth=1)))
-  let bytes = encode(nested)
-  assert_true(limited_decoding_fails(bytes, DecodeOptions::new(max_depth=1)))
+  assert_true(
+    limited_encoding_fails(nested, @bson.EncodeOptions::new(max_depth=1)),
+  )
+  let bytes = @bson.encode(nested)
+  assert_true(
+    limited_decoding_fails(bytes, @bson.DecodeOptions::new(max_depth=1)),
+  )
 }
 
 ///|
 test "RawDocument validates and preserves bytes" {
-  let bytes = encode(Document::new().set("x", Int64(2147483648L)))
-  let raw = RawDocument::from_bytes(bytes)
+  let bytes = @bson.encode(@bson.Document::new().set("x", Int64(2147483648L)))
+  let raw = @bson.RawDocument::from_bytes(bytes)
   assert_eq(raw.bytes(), bytes)
   assert_eq(raw.to_document().get_int64("x"), Some(2147483648L))
 }
